@@ -3,7 +3,7 @@ from Bio.Restriction import Analysis, RestrictionBatch, CommOnly
 import Bio.Restriction
 from Bio.Seq import Seq
 
-def make_restriction_enzyme_table(analysis, csv_out):
+def make_restriction_enzyme_table(analysis, csv_out, shared_enzymes):
     """
     Take an Analysis object and create a table containing information on the Restriction Sites
     """
@@ -12,12 +12,14 @@ def make_restriction_enzyme_table(analysis, csv_out):
         name = key.__name__
         n_sites = len(values)
         cut_locations = values
+        shared = key in shared_enzymes
         data.append({
             'Name' : name,
             'N_sites' : n_sites,
             'Cut_Locations' : cut_locations,
             'CommerciallyAvailable' : key.is_comm(),
-            'Suppliers' : key.supplier_list()
+            'Suppliers' : key.supplier_list(),
+            'Shared' : shared
         }
         )
 
@@ -28,38 +30,21 @@ def make_restriction_enzyme_table(analysis, csv_out):
     print(df.head())
     df.to_csv(csv_out, sep = '\t', index = False)
 
-def find_restriction_sites(sequence: Seq, rb = RestrictionBatch(CommOnly), linear = True):
-    """
-    Find restriction sites from a DNA sequence
-    
-    sequence - Bio.Seq.Seq
-        an object that contains the DNA sequence to be searched
-    rb - Bio.Restriction.RestrictionBatch
-        an object holding the restriction enzyme sites to search.
-            Default is commerically available enzymes (Bio.Restriction.CommOnly)
-    linear - bool
-        whether the DNA sequence should be treated as linear or circular
-    
-    return a dictioanry of {restriction enzyme : cut_locations} that have > 1 cut site
-    """
-    analysis = Analysis(rb, sequence, linear)
-
-    return analysis
 def filter_seqs(backbone_seq, backbone_linear, insertion_seq, insertion_linear, rb = RestrictionBatch(CommOnly)):
     analysis_backbone = Analysis(rb, backbone_seq, backbone_linear)
     analysis_insertion = Analysis(rb, insertion_seq, insertion_linear)
-    shared_restriction_enzymes = shared_restriction_sites(analysis_backbone, analysis_insertion)
+    shared_enzymes = shared_restriction_sites(analysis_backbone, analysis_insertion)
 
-    filter_backbone_rs, filter_insertion_rs = [filter_restriction_sites(analysis.with_N_sites(1), shared_restriction_enzymes) for analysis in [analysis_backbone, analysis_insertion]]
+    filter_backbone_rs, filter_insertion_rs = [filter_restriction_sites(analysis.with_N_sites(1), shared_enzymes) for analysis in [analysis_backbone, analysis_insertion]]
 
-    return (analysis_backbone, analysis_insertion), (filter_backbone_rs, filter_insertion_rs)
+    return (analysis_backbone, analysis_insertion), (filter_backbone_rs, filter_insertion_rs), shared_enzymes
 
 def shared_restriction_sites(analysis_1, analysis_2):
     restriction_sites_1 = analysis_1.with_sites()
     restriction_sites_2 = analysis_2.with_sites()
-    shared_keys = set(restriction_sites_1.keys()) & set(restriction_sites_2.keys())
+    shared_enzymes = set(restriction_sites_1.keys()) & set(restriction_sites_2.keys())
 
-    return shared_keys
+    return shared_enzymes
 
 def filter_restriction_sites(restriction_sites, restriction_enzymes):
     filtered_sites = {key.__name__: value for key, value in restriction_sites.items() if key in restriction_enzymes}
@@ -100,7 +85,7 @@ def main():
     plasmid_seq = Seq('ATTTTCTGAATTCGCTAACGTTA')
     dna_seq = Seq('AAAAGAATTCNNNNNNAACGTTTAT')
 
-    (analysis_plasmid, analysis_dna), (filter_plasmid_rs, filter_dna_rs) = filter_seqs(plasmid_seq, False, dna_seq, True)
+    (analysis_plasmid, analysis_dna), (filter_plasmid_rs, filter_dna_rs), shared_enzymes = filter_seqs(plasmid_seq, False, dna_seq, True)
     # lhs_seq, middle_seq, rhs_seq = cut_enzymes(plasmid_seq, filtered_plasmid_rs, ('EcoRI', 'AclI'))
     seq = cut_and_insert(
         plasmid_seq, filter_plasmid_rs, ('EcoRI', 'AclI'),
@@ -112,10 +97,15 @@ def main():
 
     csvout_plasmid = '/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info.csv'
     csvout_dna = '/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/dna_info.csv'
-    make_restriction_enzyme_table(analysis_plasmid, csvout_plasmid)
-    make_restriction_enzyme_table(analysis_dna, csvout_dna)
+    csvout_inserted = '/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/inserted_info.csv'
 
-    return analysis_plasmid
+    make_restriction_enzyme_table(analysis_plasmid, csvout_plasmid, shared_enzymes)
+    make_restriction_enzyme_table(analysis_dna, csvout_dna, shared_enzymes)
+
+    analysis_inserted = Analysis(RestrictionBatch(CommOnly), seq, True)
+    make_restriction_enzyme_table(analysis_inserted, csvout_inserted, {})
+
+    return analysis_plasmid, analysis_dna
 
 if __name__ == '__main__':
     main()
