@@ -23,7 +23,7 @@ def filter_seqs(backbone_seq, backbone_linear, insertion_seq, insertion_linear, 
     analysis_insertion = Analysis(rb, insertion_seq, insertion_linear)
     shared_restriction_enzymes = shared_restriction_sites(analysis_backbone, analysis_insertion)
 
-    filter_backbone_rs, filter_insertion_rs = [filter_restriction_sites(analysis.with_sites(), shared_restriction_enzymes) for analysis in [analysis_backbone, analysis_insertion]]
+    filter_backbone_rs, filter_insertion_rs = [filter_restriction_sites(analysis.with_N_sites(1), shared_restriction_enzymes) for analysis in [analysis_backbone, analysis_insertion]]
 
     return filter_backbone_rs, filter_insertion_rs
 
