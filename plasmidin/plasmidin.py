@@ -3,7 +3,7 @@ from Bio.Restriction import Analysis, RestrictionBatch, CommOnly
 import Bio.Restriction
 from Bio.Seq import Seq
 
-def make_restriction_enzyme_table(analysis):
+def make_restriction_enzyme_table(analysis, csv_out):
     """
     Take an Analysis object and create a table containing information on the Restriction Sites
     """
@@ -15,13 +15,18 @@ def make_restriction_enzyme_table(analysis):
         data.append({
             'Name' : name,
             'N_sites' : n_sites,
-            'Cut_Locations' : cut_locations
+            'Cut_Locations' : cut_locations,
+            'CommerciallyAvailable' : key.is_comm(),
+            'Suppliers' : key.supplier_list()
         }
         )
-    
+
     df = pandas.DataFrame(columns = data[0].keys())
     for row in data:
         df = df._append(row, ignore_index = True)
+    
+    print(df.head())
+    df.to_csv(csv_out, sep = '\t', index = False)
 
 def find_restriction_sites(sequence: Seq, rb = RestrictionBatch(CommOnly), linear = True):
     """
@@ -105,7 +110,10 @@ def main():
     print(plasmid_seq, dna_seq)
     print(seq)
 
-    make_restriction_enzyme_table(analysis_plasmid)
+    csvout_plasmid = '/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info.csv'
+    csvout_dna = '/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/dna_info.csv'
+    make_restriction_enzyme_table(analysis_plasmid, csvout_plasmid)
+    make_restriction_enzyme_table(analysis_dna, csvout_dna)
 
     return analysis_plasmid
 
