@@ -15,3 +15,6 @@ classifiers = [
 [project.urls]
 Homepage = "https://https://github.com/bmm514/PlamidInsertChecker"
 Issues = "https://https://github.com/bmm514/PlamidInsertChecker/issues"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
