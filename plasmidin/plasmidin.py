@@ -1,6 +1,28 @@
+import pandas
 from Bio.Restriction import Analysis, RestrictionBatch, CommOnly
 import Bio.Restriction
 from Bio.Seq import Seq
+
+def make_restriction_enzyme_table(analysis):
+    """
+    Take an Analysis object and create a table containing information on the Restriction Sites
+    """
+    data = []
+    for key, values in analysis.with_sites().items():
+        name = key.__name__
+        n_sites = len(values)
+        cut_locations = values
+        data.append({
+            'Name' : name,
+            'N_sites' : n_sites,
+            'Cut_Locations' : cut_locations
+        }
+        )
+    
+    df = pandas.DataFrame(columns = data[0].keys())
+    for row in data:
+        df = df._append(row, ignore_index = True)
+
 def find_restriction_sites(sequence: Seq, rb = RestrictionBatch(CommOnly), linear = True):
     """
     Find restriction sites from a DNA sequence
@@ -25,7 +47,7 @@ def filter_seqs(backbone_seq, backbone_linear, insertion_seq, insertion_linear, 
 
     filter_backbone_rs, filter_insertion_rs = [filter_restriction_sites(analysis.with_N_sites(1), shared_restriction_enzymes) for analysis in [analysis_backbone, analysis_insertion]]
 
-    return filter_backbone_rs, filter_insertion_rs
+    return (analysis_backbone, analysis_insertion), (filter_backbone_rs, filter_insertion_rs)
 
 def shared_restriction_sites(analysis_1, analysis_2):
     restriction_sites_1 = analysis_1.with_sites()
@@ -43,7 +65,6 @@ def cut_and_insert(backbone_seq, backbone_rs, backbone_enzymes, insertion_seq, i
     _, insertion_middle, _ = cut_enzymes(insertion_seq, insertion_rs, insertion_enzymes)
 
     return backbone_lhs + insertion_middle + backbone_rhs
-
 
 def cut_enzymes(seq: Seq, restriction_sites: dict, enzymes: tuple):
     """
@@ -74,7 +95,7 @@ def main():
     plasmid_seq = Seq('ATTTTCTGAATTCGCTAACGTTA')
     dna_seq = Seq('AAAAGAATTCNNNNNNAACGTTTAT')
 
-    filter_plasmid_rs, filter_dna_rs = filter_seqs(plasmid_seq, False, dna_seq, True)
+    (analysis_plasmid, analysis_dna), (filter_plasmid_rs, filter_dna_rs) = filter_seqs(plasmid_seq, False, dna_seq, True)
     # lhs_seq, middle_seq, rhs_seq = cut_enzymes(plasmid_seq, filtered_plasmid_rs, ('EcoRI', 'AclI'))
     seq = cut_and_insert(
         plasmid_seq, filter_plasmid_rs, ('EcoRI', 'AclI'),
@@ -83,6 +104,10 @@ def main():
 
     print(plasmid_seq, dna_seq)
     print(seq)
+
+    make_restriction_enzyme_table(analysis_plasmid)
+
+    return analysis_plasmid
 
 if __name__ == '__main__':
     main()
