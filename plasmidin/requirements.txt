@@ -1,0 +1,4 @@
+biopython==1.81
+numpy==1.26.2
+setuptools==68.0.0
+wheel==0.41.2
