@@ -1,0 +1,17 @@
+[project]
+name = "plasmidin"
+version = "0.0.1"
+authors = [
+  { name="Ben Murcott", email="bmm41@bath.ac.uk" },
+]
+description = "A package to look at inserting DNA sequences into plasmids for cloning or PCR for SWBio DTP Data Science and Machine Learning Module"
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://https://github.com/bmm514/PlamidInsertChecker"
+Issues = "https://https://github.com/bmm514/PlamidInsertChecker/issues"
