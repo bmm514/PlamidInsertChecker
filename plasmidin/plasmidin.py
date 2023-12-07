@@ -3,6 +3,45 @@ from Bio.Restriction import Analysis, RestrictionBatch, CommOnly
 import Bio.Restriction
 from Bio.Seq import Seq
 
+class RSFinder():
+    """
+    A class to find restriction enzyme sites within an input sequence
+    """
+    #Output can be used to compare common restriction sites
+    def __init__(self, input_seq, linear: bool, rb = RestrictionBatch(CommOnly)):
+        """
+        input_seq - a Bio.Seq.Seq object
+        linear_seq - boolean for whether the sequence is treated as linear or circular
+        rb - the Bio.Restriction.RestrictionBatch to use. Defaults to commercially availably restriction enzymes
+
+        """
+        self._input_seq = input_seq
+        self._linear = linear #do not want to be able to change in the class
+        self._rb = rb 
+
+
+    @property
+    def input_seq(self):
+        return self._input_seq
+    
+    @property
+    def linear(self):
+        return self._linear
+    
+    @property
+    def rb(self):
+        return self._rb
+    
+    def restriction_site_analysis(self):
+        """
+        Run the Bio.Restriction.Analysis on self.input_seq"""
+        rb = self.rb
+        input_seq = self.input_seq
+        linear = self.linear
+
+        return Analysis(rb, input_seq, linear)
+
+#This can be put in the function!!
 def make_restriction_enzyme_table(analysis, csv_out, shared_enzymes):
     """
     Take an Analysis object and create a table containing information on the Restriction Sites
