@@ -1,4 +1,14 @@
-from plasmidin import filter_seqs, cut_and_insert, make_restriction_enzyme_table
+from plasmidin import filter_seqs, cut_and_insert, make_restriction_enzyme_table, RSFinder
+
+def test_RSFinder():
+    from Bio.Seq import Seq
+
+    input_seq = Seq('ATTTTCTGAATTCGCTAACGTTA')
+    linear = True
+
+    rsfinder = RSFinder(input_seq, linear)
+
+    print(rsfinder.single_cut_site())
 
 def test_main():
     from Bio.Seq import Seq
@@ -26,4 +36,5 @@ def test_main():
     return analysis_plasmid, analysis_dna
 
 if __name__ == '__main__':
-    test_main()
+    # test_main()
+    test_RSFinder()

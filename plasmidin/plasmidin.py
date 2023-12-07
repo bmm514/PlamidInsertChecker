@@ -17,7 +17,9 @@ class RSFinder():
         """
         self._input_seq = input_seq
         self._linear = linear #do not want to be able to change in the class
-        self._rb = rb 
+        self._rb = rb
+
+        self._analysis = self.restriction_site_analysis()
 
 
     @property
@@ -40,8 +42,34 @@ class RSFinder():
         linear = self.linear
 
         return Analysis(rb, input_seq, linear)
+    
+    def n_cut_sites(self, n_sites):
+        """
+        Return the ezymes with n_sites number of cuts in the input_seq"""
+        analysis = self._analysis
+        n_cut_enzymes = analysis.with_N_sites(n_sites)
+        new_n_cut_enzymes = {}
+        for enzyme, values in n_cut_enzymes.items():
+            new_n_cut_enzymes[enzyme.__name__] = values
+        
+        return new_n_cut_enzymes
+
+    def single_cut_site(self):
+        """
+        Return enzymes with a single cut site
+        """
+        return self.n_cut_sites(1)
+    
+    def enzyme_cut_sites(self, restriction_enzyme):
+        """
+        Return the cut sites for the enzyme specified
+        """
+        pass
+        
+    
 
 #This can be put in the function!!
+#Also do a save_restriction_enzyme_table
 def make_restriction_enzyme_table(analysis, csv_out, shared_enzymes):
     """
     Take an Analysis object and create a table containing information on the Restriction Sites
