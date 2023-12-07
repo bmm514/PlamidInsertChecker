@@ -27,7 +27,7 @@ def make_restriction_enzyme_table(analysis, csv_out, shared_enzymes):
     for row in data:
         df = df._append(row, ignore_index = True)
     
-    print(df.head())
+    # print(df.head())
     df.to_csv(csv_out, sep = '\t', index = False)
 
 def filter_seqs(backbone_seq, backbone_linear, insertion_seq, insertion_linear, rb = RestrictionBatch(CommOnly)):
@@ -80,32 +80,3 @@ def cut_enzymes(seq: Seq, restriction_sites: dict, enzymes: tuple):
     
     lhs_seq, middle_seq, rhs_seq = seq[:lhs_cut], seq[lhs_cut:rhs_cut], seq[rhs_cut:]
     return lhs_seq, middle_seq, rhs_seq
-
-def main():
-    plasmid_seq = Seq('ATTTTCTGAATTCGCTAACGTTA')
-    dna_seq = Seq('AAAAGAATTCNNNNNNAACGTTTAT')
-
-    (analysis_plasmid, analysis_dna), (filter_plasmid_rs, filter_dna_rs), shared_enzymes = filter_seqs(plasmid_seq, False, dna_seq, True)
-    # lhs_seq, middle_seq, rhs_seq = cut_enzymes(plasmid_seq, filtered_plasmid_rs, ('EcoRI', 'AclI'))
-    seq = cut_and_insert(
-        plasmid_seq, filter_plasmid_rs, ('EcoRI', 'AclI'),
-        dna_seq, filter_dna_rs, ('EcoRI', 'AclI')
-        )
-
-    print(plasmid_seq, dna_seq)
-    print(seq)
-
-    csvout_plasmid = '/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info.csv'
-    csvout_dna = '/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/dna_info.csv'
-    csvout_inserted = '/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/inserted_info.csv'
-
-    make_restriction_enzyme_table(analysis_plasmid, csvout_plasmid, shared_enzymes)
-    make_restriction_enzyme_table(analysis_dna, csvout_dna, shared_enzymes)
-
-    analysis_inserted = Analysis(RestrictionBatch(CommOnly), seq, True)
-    make_restriction_enzyme_table(analysis_inserted, csvout_inserted, {})
-
-    return analysis_plasmid, analysis_dna
-
-if __name__ == '__main__':
-    main()
