@@ -13,7 +13,6 @@ class RSFinder():
         input_seq - a Bio.Seq.Seq object
         linear_seq - boolean for whether the sequence is treated as linear or circular
         rb - the Bio.Restriction.RestrictionBatch to use. Defaults to commercially availably restriction enzymes
-
         """
         self._input_seq = input_seq
         self._linear = linear #do not want to be able to change in the class
@@ -21,7 +20,7 @@ class RSFinder():
 
         self._analysis = self.restriction_site_analysis()
 
-
+#Need to add something to return all enzymes with >1 cut site (there is a function for the analysis object)
     @property
     def input_seq(self):
         return self._input_seq

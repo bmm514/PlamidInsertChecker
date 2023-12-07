@@ -9,6 +9,7 @@ def test_RSFinder():
     rsfinder = RSFinder(input_seq, linear)
 
     print(rsfinder.single_cut_site())
+    print(rsfinder.n_cut_sites(2))
 
 def test_main():
     from Bio.Seq import Seq
