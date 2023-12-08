@@ -282,16 +282,6 @@ class RSFinder():
         self._supplier_table = self._make_table(supplier_filtered)
         self._supplier_filtered = supplier_filtered
 
-
-def filter_seqs(backbone_seq, backbone_linear, insertion_seq, insertion_linear, rb = RestrictionBatch(CommOnly)):
-    analysis_backbone = Analysis(rb, backbone_seq, backbone_linear)
-    analysis_insertion = Analysis(rb, insertion_seq, insertion_linear)
-    shared_enzymes = shared_restriction_sites(analysis_backbone, analysis_insertion)
-
-    filter_backbone_rs, filter_insertion_rs = [filter_restriction_sites(analysis.with_N_sites(1), shared_enzymes) for analysis in [analysis_backbone, analysis_insertion]]
-
-    return (analysis_backbone, analysis_insertion), (filter_backbone_rs, filter_insertion_rs), shared_enzymes
-
 #This should be part of a seperate class that takes in 2 sequences i.e. plasmid and insert
 def cut_and_insert(backbone_seq, backbone_rs, backbone_enzymes, insertion_seq, insertion_rs, insertion_enzymes):
     backbone_lhs, _, backbone_rhs = cut_enzymes(backbone_seq, backbone_rs, backbone_enzymes)

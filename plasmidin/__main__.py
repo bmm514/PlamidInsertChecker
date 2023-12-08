@@ -33,7 +33,7 @@ def test_RSFinder():
     # print(rsfinder.supplier_filtered)
     # print(rsfinder.supplier_names)
     rsfinder.filter_supplier({'B'})
-    print(rsfinder.supplier_filtered)
+    # print(rsfinder.supplier_filtered)
     rsfinder.save_supplier_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info_thermo.csv', delimiter = ',')
 
     # print(rsfinder.supplier_names)
