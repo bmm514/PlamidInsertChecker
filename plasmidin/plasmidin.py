@@ -1,10 +1,9 @@
 import pandas
-from Bio.Restriction import Analysis, RestrictionBatch, CommOnly
-import Bio.Restriction
+from Bio.Restriction import Analysis, RestrictionBatch, CommOnly, AllEnzymes
 from Bio.Seq import Seq
 
 #Should I put this in RSFinder?
-def enzyme_dict_to_string(n_cut_enzymes):
+def enzyme_dict_to_string(n_cut_enzymes: dict):
     """Convert an analysis dictionary enzyme objects to the string name"""
     new_n_cut_enzymes = {}
     for enzyme, values in n_cut_enzymes.items():
@@ -147,20 +146,12 @@ class RSFinder():
         return filtered_enzymes
 
     def shared_restriction_enzymes(self, rsfinder, n_cut_sites = 1):
-        """
-        Extract the restriction enzymes in rsfinder that share the same sites with the current RSFinder
-        """
+        """Extract the restriction enzymes in rsfinder that share the same sites with the current RSFinder"""
         if not isinstance(rsfinder, RSFinder):
             raise TypeError(f'rsfinder is not an RSFinder class')
         
         internal_enzymes = self._select_enzymes(n_cut_sites)
         external_enzymes = rsfinder._select_enzymes(n_cut_sites)
-        # if n_cut_sites == 1: #This saves recreating the already created dictionary
-        #     internal_enzymes = self.single_cut_enzymes
-        #     external_enzymes = rsfinder.single_cut_enzymes
-        # else:
-        #     internal_enzymes = self.n_cut_sites(n_cut_sites)
-        #     external_enzymes = rsfinder.n_cut_sites(n_cut_sites)
 
         shared_enzymes = set(internal_enzymes.keys()) & set(external_enzymes.keys())
 
@@ -169,21 +160,20 @@ class RSFinder():
 #This can be put in the class!!
 #Also do a save_restriction_enzyme_table
     def create_restriction_enzyme_table(self, n_cut_sites = None):
-        """
-        Take an Analysis object and create a table containing information on the Restriction Sites
-        """
+        """Take an Analysis object and create a table containing information on the Restriction Sites"""
         cut_enzymes = self._select_enzymes(n_cut_sites)
         data = []
-        for key, values in cut_enzymes.items():
-            name = key
+        for enzyme_name, values in cut_enzymes.items():
+            enzyme = self.rb.get(enzyme_name)
             n_sites = len(values)
             cut_locations = values
             data.append({
-                'Name' : name,
+                'Name' : enzyme_name,
                 'N_sites' : n_sites,
-                'Cut_Locations' : '; '.join(map(str,cut_locations))#,
-                # 'CommerciallyAvailable' : key.is_comm(),
-                # 'Suppliers' : key.supplier_list(),
+                'Cut_Locations' : '; '.join(map(str,cut_locations)),
+                'Cut_type' : enzyme.overhang(),
+                'CommerciallyAvailable' : enzyme.is_comm(),
+                'Suppliers' : '; '.join(enzyme.supplier_list()),
             }
             )
 
@@ -193,8 +183,8 @@ class RSFinder():
         
         return enzyme_df
     
-    def save_table(table_out, delimiter = '\t'):
-        df = self.enzyme_df
+    def save_table(self, table_out, delimiter = '\t'):
+        df = self.enzyme_table
         df.to_csv(table_out, sep = delimiter, index = False)
 
 def filter_seqs(backbone_seq, backbone_linear, insertion_seq, insertion_linear, rb = RestrictionBatch(CommOnly)):

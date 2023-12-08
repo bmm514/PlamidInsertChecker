@@ -24,8 +24,9 @@ def test_RSFinder():
     # rsfinder.shared_restriction_enzymes(external_rsfinder)
     # rsfinder.shared_restriction_enzymes('', 3)
 
-    # print(rsfinder.filter_enzymes(['EcoRI', 'AbaSI']))
+    print(rsfinder.filter_enzymes(['EcoRI', 'AbaSI']))
     print(rsfinder.enzyme_table.head())
+    rsfinder.save_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info.csv', delimiter = ',')
 
 
 def test_main():
