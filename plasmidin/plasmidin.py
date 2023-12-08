@@ -115,7 +115,7 @@ class RSFinder():
         """
         Return a dictionary of {restriction_enzyme : cut_sites} for every restriction enzyme in restriction_enzymes.
         Use n_cut_sites to limit to specified number of cut sites, if None then do all cut sites
-        Any missing keys will have a value of []
+        Any missing keys will be skipped
 
         restriction_enzymes can be any iterable
         """
@@ -130,11 +130,9 @@ class RSFinder():
         for restriction_enzyme in restriction_enzymes:
             try:
                 cut_sites = cut_enzymes[restriction_enzyme]
+                filtered_enzymes[restriction_enzyme] = cut_sites
             except KeyError:
-                print(f'Could not find {restriction_enzyme} in dictionary. Setting value to []')
-                cut_sites = []
-
-            filtered_enzymes[restriction_enzyme] = cut_sites
+                print(f'Could not find {restriction_enzyme} in dictionary. Skipping {restriction_enzyme}')
 
         return filtered_enzymes
 
