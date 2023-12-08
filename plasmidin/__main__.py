@@ -20,8 +20,11 @@ def test_RSFinder():
     # rsfinder.change_rb(new_rb, update = True)
     # print(rsfinder.single_cut_enzymes)
     # print(rsfinder.enzyme_cut_sites('EcoRI'))
-    rsfinder.shared_restriction_enzymes(external_rsfinder)
-    rsfinder.shared_restriction_enzymes('', 3)
+
+    # rsfinder.shared_restriction_enzymes(external_rsfinder)
+    # rsfinder.shared_restriction_enzymes('', 3)
+
+    print(rsfinder.filter_enzymes(['EcoRI', 'AbaSI']))
 
 
 def test_main():

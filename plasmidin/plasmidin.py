@@ -104,17 +104,45 @@ class RSFinder():
     
     def enzyme_cut_sites(self, restriction_enzyme):
         """Return the cut sites for the enzyme specified"""
-        any_cut_enzymes = self._all_cut_enzymes
+        all_cut_enzymes = self._all_cut_enzymes
         try:
-            return any_cut_enzymes[restriction_enzyme]
+            return all_cut_enzymes[restriction_enzyme]
         except KeyError:
             print(f'Could not find {restriction_enzyme} in dictionary. Returning []')
             return []
+    
+    def filter_enzymes(self, restriction_enzymes, n_cut_sites = None):
+        """
+        Return a dictionary of {restriction_enzyme : cut_sites} for every restriction enzyme in restriction_enzymes.
+        Use n_cut_sites to limit to specified number of cut sites, if None then do all cut sites
+        Any missing keys will have a value of []
+
+        restriction_enzymes can be any iterable
+        """
+        if n_cut_sites is None:
+            cut_enzymes = self.all_cut_enzymes
+        elif n_cut_sites == 1: #saving computation
+            cut_enzymes = self.single_cut_enzymes
+        else:
+            cut_enzymes = self.n_cut_sites(n_cut_sites)
+
+        filtered_enzymes = {}
+        for restriction_enzyme in restriction_enzymes:
+            try:
+                cut_sites = cut_enzymes[restriction_enzyme]
+            except KeyError:
+                print(f'Could not find {restriction_enzyme} in dictionary. Setting value to []')
+                cut_sites = []
+
+            filtered_enzymes[restriction_enzyme] = cut_sites
+
+        return filtered_enzymes
+
     def shared_restriction_enzymes(self, rsfinder, n_cut_sites = 1):
         """
         Extract the restriction enzymes in rsfinder that share the same sites with the current RSFinder
         """
-        print(isinstance(rsfinder, RSFinder))
+        # print(isinstance(rsfinder, RSFinder))
         if not isinstance(rsfinder, RSFinder):
             raise TypeError(f'rsfinder is not an RSFinder class')
         
@@ -124,8 +152,8 @@ class RSFinder():
         else:
             internal_enzymes = self.n_cut_sites(n_cut_sites)
             external_enzymes = rsfinder.n_cut_sites(n_cut_sites)
-        print(internal_enzymes)
-        print(external_enzymes)
+        # print(internal_enzymes)
+        # print(external_enzymes)
         shared_enzymes = set(internal_enzymes.keys()) & set(external_enzymes.keys())
 
         return shared_enzymes
