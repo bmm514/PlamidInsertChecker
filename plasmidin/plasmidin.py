@@ -167,7 +167,6 @@ class RSFinder():
         
         return cut_enzymes
 
-    
     def filter_enzymes(self, restriction_enzymes, n_cut_sites = None):
         """
         Return a dictionary of {restriction_enzyme : cut_sites} for every restriction enzyme in restriction_enzymes.
@@ -290,6 +289,20 @@ class RSInserter():
     def __init__(self, backbone_seq, insert_seq, backbone_linear = False, insert_linear = True, rb = RestrictionBatch(CommOnly)):
         self._backbone_rsfinder = RSFinder(backbone_seq, backbone_linear, rb)
         self._insert_rsfinder = RSFinder(insert_seq, insert_linear, rb)
+
+        self._shared_single_enzymes = self.backbone_rsfinder.shared_restriction_enzymes(self.insert_rsfinder)
+
+    @property
+    def backbone_rsfinder(self):
+        return self._backbone_rsfinder
+    
+    @property
+    def insert_rsfinder(self):
+        return self._insert_rsfinder
+    
+    @property
+    def shared_single_enzymes(self):
+        return self._shared_single_enzymes
         
 #This should be part of a seperate class that takes in 2 sequences i.e. plasmid and insert
 def cut_and_insert(backbone_seq, backbone_rs, backbone_enzymes, insertion_seq, insertion_rs, insertion_enzymes):

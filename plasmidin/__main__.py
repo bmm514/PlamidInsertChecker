@@ -49,6 +49,7 @@ def test_RSInserter():
     rsinserter = RSInserter(backbone_seq, insert_seq, backbone_linear, insert_linear)
     print(rsinserter._backbone_rsfinder.all_cut_enzymes)
     print(rsinserter._insert_rsfinder.all_cut_enzymes)
+    print(rsinserter.shared_single_enzymes)
 
 
 
