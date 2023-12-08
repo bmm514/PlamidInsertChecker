@@ -22,7 +22,6 @@ class RSFinder():
         self._single_cut_enzymes = self.single_cut_site()
         self._any_cut_enzymes = self.any_cut_sites()
 
-#Need to add something to return all enzymes with >1 cut site (there is a function for the analysis object)
     @property
     def input_seq(self):
         return self._input_seq
