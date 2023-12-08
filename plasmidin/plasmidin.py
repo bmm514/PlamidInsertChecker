@@ -19,6 +19,8 @@ class RSFinder():
         self._rb = rb
 
         self._analysis = self.restriction_site_analysis()
+        self._single_cut_enzymes = self.single_cut_site()
+        self._any_cut_enzymes = self.any_cut_sites()
 
 #Need to add something to return all enzymes with >1 cut site (there is a function for the analysis object)
     @property
@@ -42,30 +44,42 @@ class RSFinder():
 
         return Analysis(rb, input_seq, linear)
     
+    def any_cut_sites(self):
+        """Return the enzymes with any number of cuts in the input_seq"""
+        any_cut_enzymes = self._analysis.with_sites()
+        new_any_cut_enzymes = enzyme_dict_to_string(any_cut_enzymes)
+
+        return new_any_cut_enzymes
+    
     def n_cut_sites(self, n_sites):
-        """
-        Return the ezymes with n_sites number of cuts in the input_seq"""
+        """Return the ezymes with n_sites number of cuts in the input_seq"""
         analysis = self._analysis
         n_cut_enzymes = analysis.with_N_sites(n_sites)
-        new_n_cut_enzymes = {}
-        for enzyme, values in n_cut_enzymes.items():
-            new_n_cut_enzymes[enzyme.__name__] = values
+        new_n_cut_enzymes = enzyme_dict_to_string(n_cut_enzymes)
         
         return new_n_cut_enzymes
 
     def single_cut_site(self):
-        """
-        Return enzymes with a single cut site
-        """
+        """Return enzymes with a single cut site"""
         return self.n_cut_sites(1)
     
     def enzyme_cut_sites(self, restriction_enzyme):
-        """
-        Return the cut sites for the enzyme specified
-        """
-        pass
+        """Return the cut sites for the enzyme specified"""
+        any_cut_enzymes = self._any_cut_enzymes
+        try:
+            return any_cut_enzymes[restriction_enzyme]
+        except KeyError:
+            print(f'Could not find {restriction_enzyme} in dictionary. Returning []')
+            return []
         
+def enzyme_dict_to_string(n_cut_enzymes):
+    """Convert an analysis dictionary enzyme objects to the string name"""
+    new_n_cut_enzymes = {}
+    for enzyme, values in n_cut_enzymes.items():
+        new_n_cut_enzymes[enzyme.__name__] = values
     
+    return new_n_cut_enzymes
+        
 
 #This can be put in the function!!
 #Also do a save_restriction_enzyme_table

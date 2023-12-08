@@ -9,7 +9,9 @@ def test_RSFinder():
     rsfinder = RSFinder(input_seq, linear)
 
     print(rsfinder.single_cut_site())
-    print(rsfinder.n_cut_sites(2))
+    print(rsfinder.any_cut_sites())
+    print(rsfinder.enzyme_cut_sites('EcoRI'))
+    print(rsfinder.enzyme_cut_sites('AbaSI'))
 
 def test_main():
     from Bio.Seq import Seq
