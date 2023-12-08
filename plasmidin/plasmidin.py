@@ -3,6 +3,15 @@ from Bio.Restriction import Analysis, RestrictionBatch, CommOnly
 import Bio.Restriction
 from Bio.Seq import Seq
 
+#Should I put this in RSFinder?
+def enzyme_dict_to_string(n_cut_enzymes):
+    """Convert an analysis dictionary enzyme objects to the string name"""
+    new_n_cut_enzymes = {}
+    for enzyme, values in n_cut_enzymes.items():
+        new_n_cut_enzymes[enzyme.__name__] = values
+    
+    return new_n_cut_enzymes
+
 class RSFinder():
     """
     A class to find restriction enzyme sites within an input sequence
@@ -101,7 +110,7 @@ class RSFinder():
         except KeyError:
             print(f'Could not find {restriction_enzyme} in dictionary. Returning []')
             return []
-    def shared_enzymes(self, rsfinder, n_cut_sites = 1):
+    def shared_restriction_enzymes(self, rsfinder, n_cut_sites = 1):
         """
         Extract the restriction enzymes in rsfinder that share the same sites with the current RSFinder
         """
@@ -113,25 +122,11 @@ class RSFinder():
         else:
             internal_enzymes = self.n_cut_sites(n_cut_sites)
             external_enzymes = rsfinder.n_cut_sites(n_cut_sites)
-        print(internal_enzymes)
-        print(external_enzymes)
-        
-def enzyme_dict_to_string(n_cut_enzymes):
-    """Convert an analysis dictionary enzyme objects to the string name"""
-    new_n_cut_enzymes = {}
-    for enzyme, values in n_cut_enzymes.items():
-        new_n_cut_enzymes[enzyme.__name__] = values
-    
-    return new_n_cut_enzymes
+        # print(internal_enzymes)
+        # print(external_enzymes)
+        shared_enzymes = set(restriction_sites_1.keys()) & set(restriction_sites_2.keys())
 
-def shared_enzymes(self, rsfinder, n_cut_sites = 1):
-    if n_cut_sites == 1:
-        internal_enzymes = self.single_cut_enzymes
-    
-    print(internal_enzymes)
-
-
-        
+        return shared_enzymes
 
 #This can be put in the class!!
 #Also do a save_restriction_enzyme_table
@@ -171,12 +166,6 @@ def filter_seqs(backbone_seq, backbone_linear, insertion_seq, insertion_linear, 
 
     return (analysis_backbone, analysis_insertion), (filter_backbone_rs, filter_insertion_rs), shared_enzymes
 
-def shared_restriction_sites(analysis_1, analysis_2):
-    restriction_sites_1 = analysis_1.with_sites()
-    restriction_sites_2 = analysis_2.with_sites()
-    shared_enzymes = set(restriction_sites_1.keys()) & set(restriction_sites_2.keys())
-
-    return shared_enzymes
 
 def filter_restriction_sites(restriction_sites, restriction_enzymes):
     filtered_sites = {key.__name__: value for key, value in restriction_sites.items() if key in restriction_enzymes}
