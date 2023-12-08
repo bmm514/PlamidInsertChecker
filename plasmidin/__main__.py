@@ -3,13 +3,15 @@ from plasmidin import filter_seqs, cut_and_insert, RSFinder
 
 def test_RSFinder():
     from Bio.Seq import Seq
-    from Bio.Restriction import RestrictionBatch
+    from Bio.Restriction import RestrictionBatch, AllEnzymes
 
     input_seq = Seq('ATTTTCTGAATTCGCTAACGTTA')
+    dna_seq = Seq('AAAAGAATTCNNNNNNAACGTTTAT')
+
     linear = True
 
     rsfinder = RSFinder(input_seq, linear)
-    external_rsfinder = RSFinder(input_seq, linear, RestrictionBatch(['EcoRI', 'AbaSI']))
+    dna_rsfinder = RSFinder(dna_seq, linear)
 
     # print(rsfinder.single_cut_enzymes)
     # print(rsfinder.all_cut_enzymes)
@@ -24,10 +26,16 @@ def test_RSFinder():
     # rsfinder.shared_restriction_enzymes(external_rsfinder)
     # rsfinder.shared_restriction_enzymes('', 3)
 
-    print(rsfinder.filter_enzymes(['EcoRI', 'AbaSI']))
-    print(rsfinder.enzyme_table.head())
+    # print(rsfinder.filter_enzymes(['EcoRI', 'AbaSI']))
+    # print(rsfinder.enzyme_table.head())
     rsfinder.save_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info.csv', delimiter = ',')
+    dna_rsfinder.save_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/dna_info.csv', delimiter = ',')
+    # print(rsfinder.supplier_filtered)
+    # print(rsfinder.supplier_names)
+    rsfinder.filter_supplier({'B'})
+    print(rsfinder.supplier_filtered)
 
+    # print(rsfinder.supplier_names)
 
 def test_main():
     from Bio.Seq import Seq

@@ -31,6 +31,30 @@ class RSFinder():
         self._all_cut_enzymes = self.any_cut_sites()
         self._enzyme_table = self.create_restriction_enzyme_table()
 
+        self._supplier_names = set()
+        self._supplier_codes = set()
+        self._supplier_filtered = None
+        self._supplier_table = None
+
+        self._supplier_codes_dict = {
+            'B': 'Thermo Fisher Scientific',
+            'C': 'Minotech Biotechnology',
+            'E': 'Agilent Technologies',
+            'F': 'Thermo Fisher Scientific',
+            'I': 'SibEnzyme Ltd.',
+            'J': 'Nippon Gene Co., Ltd.',
+            'K': 'Takara Bio Inc.',
+            'M': 'Roche Applied Science',
+            'N': 'New England Biolabs',
+            'O': 'Toyobo Biochemicals',
+            'Q': 'Molecular Biology Resources - CHIMERx',
+            'R': 'Promega Corporation',
+            'S': 'Sigma Chemical Corporation',
+            'V': 'Vivantis Technologies',
+            'X': 'EURx Ltd.',
+            'Y': 'SinaClon BioScience Co.'
+        }
+
     @property
     def input_seq(self):
         return self._input_seq
@@ -65,6 +89,24 @@ class RSFinder():
     @property
     def enzyme_table(self):
         return self._enzyme_table
+    
+    @property
+    def supplier_filtered(self):
+        if self._supplier_filtered is None:
+            print('There is no current RSFinder.supplier_filtered')
+        return self._supplier_filtered
+    
+    @property
+    def supplier_table(self):
+        if self._supplier_table is None:
+            print("There is no current RSFinder.supplier_table")
+        return self._supplier_table
+    
+    @property
+    def supplier_names(self):
+        if self._supplier_names is set():
+            print('There are no current suppliers that have been selected to be filtered')
+        return self._supplier_names
     
     def change_rb(self, rb, update = True):
         """
@@ -156,17 +198,15 @@ class RSFinder():
         shared_enzymes = set(internal_enzymes.keys()) & set(external_enzymes.keys())
 
         return shared_enzymes
-
-#This can be put in the class!!
-#Also do a save_restriction_enzyme_table
-    def create_restriction_enzyme_table(self, n_cut_sites = None):
-        """Take an Analysis object and create a table containing information on the Restriction Sites"""
-        cut_enzymes = self._select_enzymes(n_cut_sites)
+    
+    def _make_table(self, enzyme_dict):
+        """Extract useful information from the restriction enzymes in enzyme_dict and turn into a dataframe"""
         data = []
-        for enzyme_name, values in cut_enzymes.items():
+        for enzyme_name, values in enzyme_dict.items():
             enzyme = self.rb.get(enzyme_name)
             n_sites = len(values)
             cut_locations = values
+            #Can add to the dictionary if something would be useful
             data.append({
                 'Name' : enzyme_name,
                 'N_sites' : n_sites,
@@ -182,10 +222,56 @@ class RSFinder():
             enzyme_df = enzyme_df._append(row, ignore_index = True)
         
         return enzyme_df
+
+
+    def create_restriction_enzyme_table(self, n_cut_sites = None):
+        """Take an Analysis object and create a table containing information on the Restriction Sites"""
+        cut_enzymes = self._select_enzymes(n_cut_sites)
+        enzyme_df = self._make_table(cut_enzymes)
+        
+        return enzyme_df
     
     def save_table(self, table_out, delimiter = '\t'):
         df = self.enzyme_table
         df.to_csv(table_out, sep = delimiter, index = False)
+    
+    def filter_supplier(self, supplier_codes, n_cut_sites = None):
+        """
+        Select from a supplier code from below to filter(s) out enzyme that are present:
+
+        'B': 'Thermo Fisher Scientific',
+        'C': 'Minotech Biotechnology',
+        'E': 'Agilent Technologies',
+        'I': 'SibEnzyme Ltd.',
+        'J': 'Nippon Gene Co., Ltd.',
+        'K': 'Takara Bio Inc.',
+        'M': 'Roche Applied Science',
+        'N': 'New England Biolabs',
+        'O': 'Toyobo Biochemicals',
+        'Q': 'Molecular Biology Resources - CHIMERx',
+        'R': 'Promega Corporation',
+        'S': 'Sigma Chemical Corporation',
+        'V': 'Vivantis Technologies',
+        'X': 'EURx Ltd.',
+        'Y': 'SinaClon BioScience Co.'
+
+        n_cut_sites can be None or an integer to select enzymes with specific number of cut sites
+        """
+        cut_enzymes = self._select_enzymes(n_cut_sites)
+        supplier_filtered = {}
+        self._supplier_names = {self._supplier_codes_dict[code] for code in supplier_codes}
+        self._supplier_codes = set(supplier_codes)
+        
+        for enzyme_name, values in cut_enzymes.items():
+            enzyme_suppliers = set(self.rb.get(enzyme_name).suppl)
+            retain_codes = set(supplier_codes)
+            intersection = enzyme_suppliers.intersection(retain_codes)
+            if len(intersection) > 0:
+                supplier_filtered[enzyme_name] = values
+        
+        self._supplier_table = self._make_table(supplier_filtered)
+        self._supplier_filtered = supplier_filtered
+
 
 def filter_seqs(backbone_seq, backbone_linear, insertion_seq, insertion_linear, rb = RestrictionBatch(CommOnly)):
     analysis_backbone = Analysis(rb, backbone_seq, backbone_linear)
