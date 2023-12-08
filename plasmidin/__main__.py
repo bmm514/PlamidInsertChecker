@@ -1,5 +1,5 @@
 
-from plasmidin import filter_seqs, cut_and_insert, make_restriction_enzyme_table, RSFinder
+from plasmidin import filter_seqs, cut_and_insert, RSFinder
 
 def test_RSFinder():
     from Bio.Seq import Seq
@@ -24,7 +24,8 @@ def test_RSFinder():
     # rsfinder.shared_restriction_enzymes(external_rsfinder)
     # rsfinder.shared_restriction_enzymes('', 3)
 
-    print(rsfinder.filter_enzymes(['EcoRI', 'AbaSI']))
+    # print(rsfinder.filter_enzymes(['EcoRI', 'AbaSI']))
+    print(rsfinder.enzyme_table.head())
 
 
 def test_main():
@@ -44,11 +45,11 @@ def test_main():
     csvout_dna = '/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/dna_info.csv'
     csvout_inserted = '/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/inserted_info.csv'
 
-    make_restriction_enzyme_table(analysis_plasmid, csvout_plasmid, shared_enzymes)
-    make_restriction_enzyme_table(analysis_dna, csvout_dna, shared_enzymes)
+    # make_restriction_enzyme_table(analysis_plasmid, csvout_plasmid, shared_enzymes)
+    # make_restriction_enzyme_table(analysis_dna, csvout_dna, shared_enzymes)
 
     analysis_inserted = Analysis(RestrictionBatch(CommOnly), inserted_seq, True)
-    make_restriction_enzyme_table(analysis_inserted, csvout_inserted, {})
+    # make_restriction_enzyme_table(analysis_inserted, csvout_inserted, {})
 
     return analysis_plasmid, analysis_dna
 

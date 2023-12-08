@@ -30,6 +30,7 @@ class RSFinder():
         self._analysis = self.restriction_site_analysis()
         self._single_cut_enzymes = self.single_cut_site()
         self._all_cut_enzymes = self.any_cut_sites()
+        self._enzyme_table = self.create_restriction_enzyme_table()
 
     @property
     def input_seq(self):
@@ -61,6 +62,10 @@ class RSFinder():
     @property
     def all_cut_enzymes(self):
         return self._all_cut_enzymes
+    
+    @property
+    def enzyme_table(self):
+        return self._enzyme_table
     
     def change_rb(self, rb, update = True):
         """
@@ -111,6 +116,17 @@ class RSFinder():
             print(f'Could not find {restriction_enzyme} in dictionary. Returning []')
             return []
     
+    def _select_enzymes(self, n_cut_sites):
+        if n_cut_sites is None:
+            cut_enzymes = self.all_cut_enzymes
+        elif n_cut_sites == 1: #saving computation
+            cut_enzymes = self.single_cut_enzymes
+        else:
+            cut_enzymes = self.n_cut_sites(n_cut_sites)
+        
+        return cut_enzymes
+
+    
     def filter_enzymes(self, restriction_enzymes, n_cut_sites = None):
         """
         Return a dictionary of {restriction_enzyme : cut_sites} for every restriction enzyme in restriction_enzymes.
@@ -119,13 +135,7 @@ class RSFinder():
 
         restriction_enzymes can be any iterable
         """
-        if n_cut_sites is None:
-            cut_enzymes = self.all_cut_enzymes
-        elif n_cut_sites == 1: #saving computation
-            cut_enzymes = self.single_cut_enzymes
-        else:
-            cut_enzymes = self.n_cut_sites(n_cut_sites)
-
+        cut_enzymes = self._select_enzymes(n_cut_sites)
         filtered_enzymes = {}
         for restriction_enzyme in restriction_enzymes:
             try:
@@ -140,50 +150,52 @@ class RSFinder():
         """
         Extract the restriction enzymes in rsfinder that share the same sites with the current RSFinder
         """
-        # print(isinstance(rsfinder, RSFinder))
         if not isinstance(rsfinder, RSFinder):
             raise TypeError(f'rsfinder is not an RSFinder class')
         
-        if n_cut_sites == 1: #This saves recreating the already created dictionary
-            internal_enzymes = self.single_cut_enzymes
-            external_enzymes = rsfinder.single_cut_enzymes
-        else:
-            internal_enzymes = self.n_cut_sites(n_cut_sites)
-            external_enzymes = rsfinder.n_cut_sites(n_cut_sites)
-        # print(internal_enzymes)
-        # print(external_enzymes)
+        internal_enzymes = self._select_enzymes(n_cut_sites)
+        external_enzymes = rsfinder._select_enzymes(n_cut_sites)
+        # if n_cut_sites == 1: #This saves recreating the already created dictionary
+        #     internal_enzymes = self.single_cut_enzymes
+        #     external_enzymes = rsfinder.single_cut_enzymes
+        # else:
+        #     internal_enzymes = self.n_cut_sites(n_cut_sites)
+        #     external_enzymes = rsfinder.n_cut_sites(n_cut_sites)
+
         shared_enzymes = set(internal_enzymes.keys()) & set(external_enzymes.keys())
 
         return shared_enzymes
 
 #This can be put in the class!!
 #Also do a save_restriction_enzyme_table
-def make_restriction_enzyme_table(analysis, csv_out, shared_enzymes):
-    """
-    Take an Analysis object and create a table containing information on the Restriction Sites
-    """
-    data = []
-    for key, values in analysis.with_sites().items():
-        name = key.__name__
-        n_sites = len(values)
-        cut_locations = values
-        shared = key in shared_enzymes
-        data.append({
-            'Name' : name,
-            'N_sites' : n_sites,
-            'Cut_Locations' : cut_locations,
-            'CommerciallyAvailable' : key.is_comm(),
-            'Suppliers' : key.supplier_list(),
-            'Shared' : shared
-        }
-        )
+    def create_restriction_enzyme_table(self, n_cut_sites = None):
+        """
+        Take an Analysis object and create a table containing information on the Restriction Sites
+        """
+        cut_enzymes = self._select_enzymes(n_cut_sites)
+        data = []
+        for key, values in cut_enzymes.items():
+            name = key
+            n_sites = len(values)
+            cut_locations = values
+            data.append({
+                'Name' : name,
+                'N_sites' : n_sites,
+                'Cut_Locations' : '; '.join(map(str,cut_locations))#,
+                # 'CommerciallyAvailable' : key.is_comm(),
+                # 'Suppliers' : key.supplier_list(),
+            }
+            )
 
-    df = pandas.DataFrame(columns = data[0].keys())
-    for row in data:
-        df = df._append(row, ignore_index = True)
+        enzyme_df = pandas.DataFrame(columns = data[0].keys())
+        for row in data:
+            enzyme_df = enzyme_df._append(row, ignore_index = True)
+        
+        return enzyme_df
     
-    # print(df.head())
-    df.to_csv(csv_out, sep = '\t', index = False)
+    def save_table(table_out, delimiter = '\t'):
+        df = self.enzyme_df
+        df.to_csv(table_out, sep = delimiter, index = False)
 
 def filter_seqs(backbone_seq, backbone_linear, insertion_seq, insertion_linear, rb = RestrictionBatch(CommOnly)):
     analysis_backbone = Analysis(rb, backbone_seq, backbone_linear)
@@ -194,11 +206,7 @@ def filter_seqs(backbone_seq, backbone_linear, insertion_seq, insertion_linear, 
 
     return (analysis_backbone, analysis_insertion), (filter_backbone_rs, filter_insertion_rs), shared_enzymes
 
-
-def filter_restriction_sites(restriction_sites, restriction_enzymes):
-    filtered_sites = {key.__name__: value for key, value in restriction_sites.items() if key in restriction_enzymes}
-    return filtered_sites
-
+#This should be part of a seperate class that takes in 2 sequences i.e. plasmid and insert
 def cut_and_insert(backbone_seq, backbone_rs, backbone_enzymes, insertion_seq, insertion_rs, insertion_enzymes):
     backbone_lhs, _, backbone_rhs = cut_enzymes(backbone_seq, backbone_rs, backbone_enzymes)
     _, insertion_middle, _ = cut_enzymes(insertion_seq, insertion_rs, insertion_enzymes)
