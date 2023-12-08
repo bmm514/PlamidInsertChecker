@@ -1,5 +1,5 @@
 
-from plasmidin import filter_seqs, cut_and_insert, RSFinder
+from plasmidin import cut_and_insert, RSFinder, RSInserter
 
 def test_RSFinder():
     from Bio.Seq import Seq
@@ -37,6 +37,22 @@ def test_RSFinder():
     rsfinder.save_supplier_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info_thermo.csv', delimiter = ',')
 
     # print(rsfinder.supplier_names)
+def test_RSInserter():
+    from Bio.Seq import Seq
+    from Bio.Restriction import RestrictionBatch, AllEnzymes
+
+    backbone_seq = Seq('ATTTTCTGAATTCGCTAACGTTA')
+    backbone_linear = False
+    insert_seq = Seq('AAAAGAATTCNNNNNNAACGTTTAT')
+    insert_linear = True
+
+    rsinserter = RSInserter(backbone_seq, insert_seq, backbone_linear, insert_linear)
+    print(rsinserter._backbone_rsfinder.all_cut_enzymes)
+    print(rsinserter._insert_rsfinder.all_cut_enzymes)
+
+
+
+
 
 def test_main():
     from Bio.Seq import Seq
@@ -65,4 +81,5 @@ def test_main():
 
 if __name__ == '__main__':
     # test_main()
-    test_RSFinder()
+    # test_RSFinder()
+    test_RSInserter()

@@ -269,8 +269,6 @@ class RSFinder():
         """
         cut_enzymes = self._select_enzymes(n_cut_sites)
         supplier_filtered = {}
-        self._supplier_names = {self._supplier_codes_dict[code] for code in supplier_codes}
-        self._supplier_codes = set(supplier_codes)
         
         for enzyme_name, values in cut_enzymes.items():
             enzyme_suppliers = set(self.rb.get(enzyme_name).suppl)
@@ -281,7 +279,18 @@ class RSFinder():
         
         self._supplier_table = self._make_table(supplier_filtered)
         self._supplier_filtered = supplier_filtered
+        self._supplier_names = {self._supplier_codes_dict[code] for code in supplier_codes}
+        self._supplier_codes = set(supplier_codes)
 
+        return supplier_filtered
+
+class RSInserter():
+    """A class to insert a sequence into another with restriction sites"""
+
+    def __init__(self, backbone_seq, insert_seq, backbone_linear = False, insert_linear = True, rb = RestrictionBatch(CommOnly)):
+        self._backbone_rsfinder = RSFinder(backbone_seq, backbone_linear, rb)
+        self._insert_rsfinder = RSFinder(insert_seq, insert_linear, rb)
+        
 #This should be part of a seperate class that takes in 2 sequences i.e. plasmid and insert
 def cut_and_insert(backbone_seq, backbone_rs, backbone_enzymes, insertion_seq, insertion_rs, insertion_enzymes):
     backbone_lhs, _, backbone_rhs = cut_enzymes(backbone_seq, backbone_rs, backbone_enzymes)
