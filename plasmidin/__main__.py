@@ -1,17 +1,24 @@
+
 from plasmidin import filter_seqs, cut_and_insert, make_restriction_enzyme_table, RSFinder
 
 def test_RSFinder():
     from Bio.Seq import Seq
+    from Bio.Restriction import RestrictionBatch
 
     input_seq = Seq('ATTTTCTGAATTCGCTAACGTTA')
     linear = True
 
     rsfinder = RSFinder(input_seq, linear)
 
-    print(rsfinder.single_cut_site())
-    print(rsfinder.any_cut_sites())
+    print(rsfinder.single_cut_enzymes)
+    print(rsfinder.all_cut_enzymes)
     print(rsfinder.enzyme_cut_sites('EcoRI'))
     print(rsfinder.enzyme_cut_sites('AbaSI'))
+    # new_rb = RestrictionBatch(['EcoRI'])
+    # rsfinder.change_rb(new_rb, update = True)
+    # print(rsfinder.single_cut_enzymes)
+    # print(rsfinder.enzyme_cut_sites('EcoRI'))
+
 
 def test_main():
     from Bio.Seq import Seq

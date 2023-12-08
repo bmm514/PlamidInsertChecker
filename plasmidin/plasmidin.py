@@ -20,7 +20,7 @@ class RSFinder():
 
         self._analysis = self.restriction_site_analysis()
         self._single_cut_enzymes = self.single_cut_site()
-        self._any_cut_enzymes = self.any_cut_sites()
+        self._all_cut_enzymes = self.any_cut_sites()
 
     @property
     def input_seq(self):
@@ -34,6 +34,37 @@ class RSFinder():
     def rb(self):
         return self._rb
     
+    @rb.setter
+    def rb(self, rb):
+        if isinstance(rb, RestrictionBatch):
+            self._rb = rb
+        else:
+            raise ValueError(f'rb is not a Bio.Restriction.RestrictionBatch object so not updating')
+    
+    @property
+    def analysis(self):
+        return self._analysis
+    
+    @property
+    def single_cut_enzymes(self):
+        return self._single_cut_enzymes
+    
+    @property
+    def all_cut_enzymes(self):
+        return self._all_cut_enzymes
+    
+    def change_rb(self, rb, update = True):
+        """
+        Change the RestrictionBatch held within RSFinder and update RSFinder._analysis,
+        RSFinder._single_cut_enzymes and RSFinder.all_cut_enzymes
+        """
+        self.rb = rb
+        if update:
+            input_seq = self.input_seq
+            linear = self.linear
+            rb = self.rb
+            self.__init__(input_seq, linear, rb)
+
     def restriction_site_analysis(self):
         """
         Run the Bio.Restriction.Analysis on self.input_seq"""
@@ -46,9 +77,9 @@ class RSFinder():
     def any_cut_sites(self):
         """Return the enzymes with any number of cuts in the input_seq"""
         any_cut_enzymes = self._analysis.with_sites()
-        new_any_cut_enzymes = enzyme_dict_to_string(any_cut_enzymes)
+        new_all_cut_enzymes = enzyme_dict_to_string(any_cut_enzymes)
 
-        return new_any_cut_enzymes
+        return new_all_cut_enzymes
     
     def n_cut_sites(self, n_sites):
         """Return the ezymes with n_sites number of cuts in the input_seq"""
@@ -64,7 +95,7 @@ class RSFinder():
     
     def enzyme_cut_sites(self, restriction_enzyme):
         """Return the cut sites for the enzyme specified"""
-        any_cut_enzymes = self._any_cut_enzymes
+        any_cut_enzymes = self._all_cut_enzymes
         try:
             return any_cut_enzymes[restriction_enzyme]
         except KeyError:
@@ -80,7 +111,7 @@ def enzyme_dict_to_string(n_cut_enzymes):
     return new_n_cut_enzymes
         
 
-#This can be put in the function!!
+#This can be put in the class!!
 #Also do a save_restriction_enzyme_table
 def make_restriction_enzyme_table(analysis, csv_out, shared_enzymes):
     """
