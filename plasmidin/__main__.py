@@ -9,15 +9,19 @@ def test_RSFinder():
     linear = True
 
     rsfinder = RSFinder(input_seq, linear)
+    external_rsfinder = RSFinder(input_seq, linear, RestrictionBatch(['EcoRI', 'AbaSI']))
 
-    print(rsfinder.single_cut_enzymes)
-    print(rsfinder.all_cut_enzymes)
-    print(rsfinder.enzyme_cut_sites('EcoRI'))
-    print(rsfinder.enzyme_cut_sites('AbaSI'))
+    # print(rsfinder.single_cut_enzymes)
+    # print(rsfinder.all_cut_enzymes)
+    # print(rsfinder.enzyme_cut_sites('EcoRI'))
+    # print(rsfinder.enzyme_cut_sites('AbaSI'))
+
     # new_rb = RestrictionBatch(['EcoRI'])
     # rsfinder.change_rb(new_rb, update = True)
     # print(rsfinder.single_cut_enzymes)
     # print(rsfinder.enzyme_cut_sites('EcoRI'))
+    rsfinder.shared_enzymes(external_rsfinder)
+    rsfinder.shared_enzymes(external_rsfinder, 3)
 
 
 def test_main():

@@ -101,6 +101,20 @@ class RSFinder():
         except KeyError:
             print(f'Could not find {restriction_enzyme} in dictionary. Returning []')
             return []
+    def shared_enzymes(self, rsfinder, n_cut_sites = 1):
+        """
+        Extract the restriction enzymes in rsfinder that share the same sites with the current RSFinder
+        """
+        if not isinstance(rsfinder, RSFinder):
+            raise TypeError(f'rsfinder is not an RSFinder class')
+        if n_cut_sites == 1: #This saves recreating the already created dictionary
+            internal_enzymes = self.single_cut_enzymes
+            external_enzymes = rsfinder.single_cut_enzymes
+        else:
+            internal_enzymes = self.n_cut_sites(n_cut_sites)
+            external_enzymes = rsfinder.n_cut_sites(n_cut_sites)
+        print(internal_enzymes)
+        print(external_enzymes)
         
 def enzyme_dict_to_string(n_cut_enzymes):
     """Convert an analysis dictionary enzyme objects to the string name"""
@@ -109,6 +123,14 @@ def enzyme_dict_to_string(n_cut_enzymes):
         new_n_cut_enzymes[enzyme.__name__] = values
     
     return new_n_cut_enzymes
+
+def shared_enzymes(self, rsfinder, n_cut_sites = 1):
+    if n_cut_sites == 1:
+        internal_enzymes = self.single_cut_enzymes
+    
+    print(internal_enzymes)
+
+
         
 
 #This can be put in the class!!
