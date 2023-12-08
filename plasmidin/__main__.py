@@ -28,12 +28,13 @@ def test_RSFinder():
 
     # print(rsfinder.filter_enzymes(['EcoRI', 'AbaSI']))
     # print(rsfinder.enzyme_table.head())
-    rsfinder.save_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info.csv', delimiter = ',')
-    dna_rsfinder.save_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/dna_info.csv', delimiter = ',')
+    rsfinder.save_enzyme_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info.csv', delimiter = ',')
+    dna_rsfinder.save_enzyme_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/dna_info.csv', delimiter = ',')
     # print(rsfinder.supplier_filtered)
     # print(rsfinder.supplier_names)
     rsfinder.filter_supplier({'B'})
     print(rsfinder.supplier_filtered)
+    rsfinder.save_supplier_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info_thermo.csv', delimiter = ',')
 
     # print(rsfinder.supplier_names)
 

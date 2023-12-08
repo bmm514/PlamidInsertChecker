@@ -231,10 +231,20 @@ class RSFinder():
         
         return enzyme_df
     
-    def save_table(self, table_out, delimiter = '\t'):
-        df = self.enzyme_table
+    def _save_table(self, df, table_out, delimiter = '\t'):
         df.to_csv(table_out, sep = delimiter, index = False)
     
+    def save_enzyme_table(self, table_out, delimiter = '\t'):
+        df = self.enzyme_table
+        self._save_table(df, table_out, delimiter)
+    
+    def save_supplier_table(self, table_out, delimiter = '\t'):
+        df = self.supplier_table
+        if df is not None:
+            self._save_table(df, table_out, delimiter)
+        else:
+            raise TypeError(f'There is no RSFinder.supplier_table present. Make one with RSFinder.filter_supplier')
+
     def filter_supplier(self, supplier_codes, n_cut_sites = None):
         """
         Select from a supplier code from below to filter(s) out enzyme that are present:
