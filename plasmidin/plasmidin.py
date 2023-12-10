@@ -289,6 +289,7 @@ class RSInserter():
     def __init__(self, backbone_seq, insert_seq, backbone_linear = False, insert_linear = True, rb = RestrictionBatch(CommOnly)):
         self._backbone_rsfinder = RSFinder(backbone_seq, backbone_linear, rb)
         self._insert_rsfinder = RSFinder(insert_seq, insert_linear, rb)
+        self._integrated_rsfinder = None
 
         self._shared_single_enzymes = self.backbone_rsfinder.shared_restriction_enzymes(self.insert_rsfinder)
 
@@ -303,6 +304,22 @@ class RSInserter():
     @property
     def shared_single_enzymes(self):
         return self._shared_single_enzymes
+    
+    @property
+    def integrated_rsfiner(self):
+        if self._integrated_rsfinder is None:
+            print('RSInserter.integrated_rsfinder has not been set yet. Use RSInserted.integrate_seqs() to create')
+        return self._integrated_rsfinder
+    
+    def inegrate_seq(self):
+        return NotImplementedError('Not implemented yet!')
+    
+    
+    # Things to do:
+    # 1) Uncover compatible RS cut sites
+    # 2) Insert insert_seq into backbone_seq according to (5' enzyme, 3' enzyme) - name self._integrated_rsfinder
+    #   a) Make sure to have insert oritentiation the correct way around i.e. if enzymes (A,B) for backbone, and (B,A) for insert then need to reverse the inesert
+    # 3) Produce report of integrated sequence ()
         
 #This should be part of a seperate class that takes in 2 sequences i.e. plasmid and insert
 def cut_and_insert(backbone_seq, backbone_rs, backbone_enzymes, insertion_seq, insertion_rs, insertion_enzymes):
