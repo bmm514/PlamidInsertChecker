@@ -3,6 +3,7 @@ from Bio.Restriction import RestrictionBatch, AllEnzymes, Analysis, CommOnly
 
 from plasmidin import cut_and_insert, RSFinder, RSInserter
 
+#Sometimes need to select the correct interpreter in vscode using >python: Select Interpreter then chosing the env
 def test_RSFinder():
     input_seq = Seq('ATTTTCTGAATTCGCTAACGTTA')
     dna_seq = Seq('AAAAGAATTCNNNNNNAACGTTTAT')
@@ -43,9 +44,13 @@ def test_RSInserter():
     insert_linear = True
 
     rsinserter = RSInserter(backbone_seq, insert_seq, backbone_linear, insert_linear)
-    print(rsinserter._backbone_rsfinder.all_cut_enzymes)
-    print(rsinserter._insert_rsfinder.all_cut_enzymes)
+    # print(rsinserter._backbone_rsfinder.all_cut_enzymes)
+    # print(rsinserter._insert_rsfinder.all_cut_enzymes)
     print(rsinserter.shared_single_enzymes)
+    print(rsinserter.backbone_single_cut_sites)
+    print(rsinserter.insert_single_cut_sites)
+    # print(rsinserter.shared_any_enzymes)
+
 
 
 

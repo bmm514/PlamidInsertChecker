@@ -11,6 +11,9 @@ def enzyme_dict_to_string(n_cut_enzymes: dict):
     
     return new_n_cut_enzymes
 
+def return_shared_dict(cut_enzymes: dict, shared_enzymes):
+    return {enzyme_name: cut_sites for enzyme_name, cut_sites in cut_enzymes.items() if enzyme_name in shared_enzymes}
+
 class RSFinder():
     """
     A class to find restriction enzyme sites within an input sequence
@@ -187,7 +190,10 @@ class RSFinder():
         return filtered_enzymes
 
     def shared_restriction_enzymes(self, rsfinder, n_cut_sites = 1):
-        """Extract the restriction enzymes in rsfinder that share the same sites with the current RSFinder"""
+        """
+        Extract the restriction enzymes in rsfinder that share the same sites with the current RSFinder. 
+        Returns a set of the shared enzymes (as strings)
+        """
         if not isinstance(rsfinder, RSFinder):
             raise TypeError(f'rsfinder is not an RSFinder class')
         
@@ -291,7 +297,9 @@ class RSInserter():
         self._insert_rsfinder = RSFinder(insert_seq, insert_linear, rb)
         self._integrated_rsfinder = None
 
-        self._shared_single_enzymes = self.backbone_rsfinder.shared_restriction_enzymes(self.insert_rsfinder)
+        self._shared_single_enzymes, self._backbone_single_cut_sites, self._insert_single_cut_sites = self._shared_enzymes(n_cut_sites=1)
+        self._shared_any_enzymes, self._backbone_any_cut_sites, self._insert_any_cut_sites = self._shared_enzymes(n_cut_sites=None)
+
 
     @property
     def backbone_rsfinder(self):
@@ -306,13 +314,50 @@ class RSInserter():
         return self._shared_single_enzymes
     
     @property
+    def backbone_single_cut_sites(self):
+        return self._backbone_single_cut_sites
+    
+    @property
+    def insert_single_cut_sites(self):
+        return self._insert_single_cut_sites
+    
+    @property
+    def shared_any_enzymes(self):
+        return self._shared_any_enzymes
+
+    @property
+    def backbone_any_cut_sites(self):
+        return self._backbone_any_cut_sites
+    
+    @property
+    def insert_any_cut_sites(self):
+        return self._insert_any_cut_sites
+    
+    @property
     def integrated_rsfiner(self):
         if self._integrated_rsfinder is None:
             print('RSInserter.integrated_rsfinder has not been set yet. Use RSInserted.integrate_seqs() to create')
         return self._integrated_rsfinder
     
+    def _return_shared_dict(self, rsfinder: RSFinder, shared_enzymes, n_cut_sites):
+        """Filter the rsfinder to return only those in shared_enzymes"""
+        cut_enzymes = rsfinder._select_enzymes(n_cut_sites)
+        shared_cut_sites = return_shared_dict(cut_enzymes, shared_enzymes)
+        return shared_cut_sites
+
+    def _shared_enzymes(self, n_cut_sites = 1):
+        """
+        Return infomation on the shared enzymes with specified cut sites. Default is a single cut site
+        Returns: shared_enzyme set, backbone_shared_enzymes dict, insert_shared_enzymes dict
+        """
+        shared_enzymes = self.backbone_rsfinder.shared_restriction_enzymes(self.insert_rsfinder, n_cut_sites)
+        backbone_shared_cut_sites = self._return_shared_dict(self.backbone_rsfinder, shared_enzymes, n_cut_sites)
+        insert_shared_cut_sites = self._return_shared_dict(self.insert_rsfinder, shared_enzymes, n_cut_sites)
+
+        return shared_enzymes, backbone_shared_cut_sites, insert_shared_cut_sites
+
     def inegrate_seq(self):
-        return NotImplementedError('Not implemented yet!')
+        raise NotImplementedError('Not implemented yet!')
     
     
     # Things to do:
