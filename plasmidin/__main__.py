@@ -50,8 +50,16 @@ def test_RSInserter():
     print(rsinserter.backbone_single_cut_sites)
     print(rsinserter.insert_single_cut_sites)
     # print(rsinserter.shared_any_enzymes)
-    rsinserter.inegrate_seq(('EcoRI', 'TaiI'), ('EcoRI', 'TaiI'))
-    # rsinserter.inegrate_seq(('EcoRI', 'TaiI'), ('TaiI', 'EcoRI'))
+    # EcoRI = G^AATTC
+    print('#'*20)
+    print(rsinserter.inegrate_seq(('EcoRI', 'MaeII'), ('EcoRI', 'MaeII')))
+    print('#'*20)
+    print(rsinserter.inegrate_seq(('EcoRI', 'MaeII'), ('MaeII', 'EcoRI')))
+    print('#'*20)   
+    print(rsinserter.inegrate_seq(('MaeII', 'EcoRI'), ('EcoRI', 'MaeII')))
+    print('#'*20)
+    print(rsinserter.inegrate_seq(('MaeII', 'EcoRI'), ('MaeII', 'EcoRI')))
+
 
 
 
