@@ -296,14 +296,19 @@ class RSInserter():
     """A class to insert a sequence into another with restriction sites"""
 
     def __init__(self, backbone_seq, insert_seq, backbone_linear = False, insert_linear = True, rb = RestrictionBatch(CommOnly)):
+        self._rb = rb
         self._backbone_rsfinder = RSFinder(backbone_seq, backbone_linear, rb)
         self._insert_rsfinder = RSFinder(insert_seq, insert_linear, rb)
         self._integrated_rsfinder = None
+        self._additional_integrated_rsfinder = None
 
         self._shared_single_enzymes, self._backbone_single_cut_sites, self._insert_single_cut_sites = self._shared_enzymes(backbone_n_cut_sites=1, insert_n_cut_sites=1)
         self._shared_any_enzymes, self._backbone_any_cut_sites, self._insert_any_cut_sites = self._shared_enzymes(backbone_n_cut_sites=None, insert_n_cut_sites=None)
 
-
+    @property
+    def rb(self):
+        return self._rb
+    
     @property
     def backbone_rsfinder(self):
         return self._backbone_rsfinder
@@ -337,10 +342,17 @@ class RSInserter():
         return self._insert_any_cut_sites
     
     @property
-    def integrated_rsfiner(self):
+    def integrated_rsfinder(self):
         if self._integrated_rsfinder is None:
             print('RSInserter.integrated_rsfinder has not been set yet. Use RSInserted.integrate_seqs() to create')
         return self._integrated_rsfinder
+    
+    @property
+    def additional_integrated_rsfinder(self):
+        if self._additional_integrated_rsfinder is None:
+            print('RSInserter.additional_integrated_rsfinder has not been set yet. Use RSInserted.integrate_seqs() with a single insert enzyme to create')
+        return self._additional_integrated_rsfinder
+
     
     def _return_shared_dict(self, rsfinder: RSFinder, shared_enzymes, n_cut_sites):
         """Filter the rsfinder to return only those in shared_enzymes"""
@@ -369,9 +381,6 @@ class RSInserter():
         return (seq[:lhs_loc-1], seq[lhs_loc-1:rhs_loc-1], seq[rhs_loc-1:]), reverse_seq #because python
         
     def inegrate_seq(self, backbone_enzymes, insert_enzymes):
-        #This will only work when using 2 ezymes, would be nice to include a single backbone cut and double insert cut
-        #   No need to change backbone cutting just insert cutting
-        #Might be nice to include a check for compatability of ends
         backbone_seq = self.backbone_rsfinder.input_seq
         try:
             backbone_locs = self.backbone_single_cut_sites[backbone_enzymes[0]][0], self.backbone_single_cut_sites[backbone_enzymes[1]][0]
@@ -380,31 +389,37 @@ class RSInserter():
         
         insert_seq = self.insert_rsfinder.input_seq
         try:
-            insert_locs = self.insert_single_cut_sites[insert_enzymes[0]][0], self.insert_single_cut_sites[insert_enzymes[1]][0]
+            if insert_enzymes[0] == insert_enzymes[1]: #Allow cutting of the same enzyme twice
+                single_insert_enzyme = True
+                insert_two_cut_sites =  self.insert_rsfinder.n_cut_sites(2)
+                insert_locs = insert_two_cut_sites[insert_enzymes[0]]
+                print('Warning: Cutting the insert with a single restriction enzyme so oritentation will be ambiguous!')
+            else: #double cut within both
+                single_insert_enzyme = False
+                insert_locs = self.insert_single_cut_sites[insert_enzymes[0]][0], self.insert_single_cut_sites[insert_enzymes[1]][0]
         except KeyError:
-            raise KeyError('The enzymes(s) selected are not found with a single cut site. Review the self.shared_single_enzymes and select again')
+            raise KeyError('The enzymes(s) selected are not compatible, incorrect cut sites to know integration unambiguously. Review the enzymes and select again')
 
-        # Check for compatability of enzymes
+        # Check for compatability of enzymes - TO DO!!!!!
         # Cut the backbone seq
         (lhs_backbone_seq, _, rhs_backbone_seq), backbone_reverse_seq = self._cut_seq(backbone_seq, backbone_locs)
         # Cut the input seq
         (_, middle_insert_seq, _), insert_reverse_seq = self._cut_seq(insert_seq, insert_locs)
-        # Check the orientation for the input_seq and reverse if necessary i.e. if (A,B) != (A,B)? then reverse
-        # if backbone_reverse_seq and insert_reverse_seq:
-        #     pass #needed to skip if both are (3', 5')
-        # elif backbone_reverse_seq or insert_reverse_seq:
-        #     middle_insert_seq = middle_insert_seq[::-1] #reverse orientation
+
+        #Orient correctly, need to check
         if backbone_reverse_seq:
             lhs_backbone_seq, rhs_backbone_seq = rhs_backbone_seq, lhs_backbone_seq
         
         if insert_reverse_seq:
             middle_insert_seq = middle_insert_seq[::-1] #reverse orientation
-  
-        print(backbone_seq)
-        print(lhs_backbone_seq, rhs_backbone_seq)
-        print(insert_seq)
-        print(middle_insert_seq)
-        return lhs_backbone_seq + middle_insert_seq + rhs_backbone_seq
+
+        #Need to include a second seq if the insert has been cut with a single enzyme!!!!
+        integrated_seq = lhs_backbone_seq + middle_insert_seq + rhs_backbone_seq
+        self._integrated_rsfinder = RSFinder(integrated_seq, self.backbone_rsfinder.linear, self.rb)
+
+        if single_insert_enzyme:
+            integrated_seq_b = lhs_backbone_seq + middle_insert_seq[::-1] + rhs_backbone_seq
+            self._additional_integrated_rsfinder = RSFinder(integrated_seq_b, self.backbone_rsfinder.linear, self.rb)
   
     # Things to do:
     # 1) Uncover compatible RS cut sites - Done!!

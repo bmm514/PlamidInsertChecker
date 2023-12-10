@@ -52,14 +52,21 @@ def test_RSInserter():
     # print(rsinserter.shared_any_enzymes)
     # EcoRI = G^AATTC
     print('#'*20)
-    print(rsinserter.inegrate_seq(('EcoRI', 'MaeII'), ('EcoRI', 'MaeII')))
+    rsinserter.inegrate_seq(('EcoRI', 'MaeII'), ('AbaSI', 'AbaSI'))
+    print(rsinserter.integrated_rsfinder.input_seq)
+    print(rsinserter.additional_integrated_rsfinder.input_seq)
     print('#'*20)
-    print(rsinserter.inegrate_seq(('EcoRI', 'MaeII'), ('MaeII', 'EcoRI')))
+    rsinserter.inegrate_seq(('EcoRI', 'MaeII'), ('EcoRI', 'MaeII'))
+    print(rsinserter.integrated_rsfinder.input_seq)
+    print('#'*20)
+    rsinserter.inegrate_seq(('EcoRI', 'MaeII'), ('MaeII', 'EcoRI'))
+    print(rsinserter.integrated_rsfinder.input_seq)
     print('#'*20)   
-    print(rsinserter.inegrate_seq(('MaeII', 'EcoRI'), ('EcoRI', 'MaeII')))
+    rsinserter.inegrate_seq(('MaeII', 'EcoRI'), ('EcoRI', 'MaeII'))
+    print(rsinserter.integrated_rsfinder.input_seq)
     print('#'*20)
-    print(rsinserter.inegrate_seq(('MaeII', 'EcoRI'), ('MaeII', 'EcoRI')))
-
+    rsinserter.inegrate_seq(('MaeII', 'EcoRI'), ('MaeII', 'EcoRI'))
+    print(rsinserter.integrated_rsfinder.input_seq)
 
 
 
