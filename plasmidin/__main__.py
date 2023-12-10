@@ -40,7 +40,7 @@ def test_RSFinder():
 def test_RSInserter():
     backbone_seq = Seq('ATTTTCTGAATTCGCTAACGTTA')
     backbone_linear = False
-    insert_seq = Seq('AAAAGAATTCNNNNNNAACGTTTAT')
+    insert_seq = Seq('AAAAGAATTCNNNNNNNNNAACGTTTAT')
     insert_linear = True
 
     rsinserter = RSInserter(backbone_seq, insert_seq, backbone_linear, insert_linear)
@@ -50,6 +50,8 @@ def test_RSInserter():
     print(rsinserter.backbone_single_cut_sites)
     print(rsinserter.insert_single_cut_sites)
     # print(rsinserter.shared_any_enzymes)
+    rsinserter.inegrate_seq(('EcoRI', 'TaiI'), ('EcoRI', 'TaiI'))
+    # rsinserter.inegrate_seq(('EcoRI', 'TaiI'), ('TaiI', 'EcoRI'))
 
 
 

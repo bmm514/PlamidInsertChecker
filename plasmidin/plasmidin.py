@@ -356,12 +356,40 @@ class RSInserter():
 
         return shared_enzymes, backbone_shared_cut_sites, insert_shared_cut_sites
 
-    def inegrate_seq(self):
-        raise NotImplementedError('Not implemented yet!')
+    def _cut_seq(self, seq: Seq, cut_site_locs):
+        five_loc = cut_site_locs[0]
+        three_loc = cut_site_locs[1]
+        if five_loc > three_loc:
+            five_loc, three_loc = three_loc, five_loc
+        return seq[:five_loc], seq[five_loc:three_loc], seq[three_loc:]
     
-    
+    def inegrate_seq(self, backbone_enzymes, insert_enzymes):
+        #Might be nice to include a check for compatability of ends
+        backbone_seq = self.backbone_rsfinder.input_seq
+        try:
+            backbone_locs = self.backbone_single_cut_sites[backbone_enzymes[0]][0], self.backbone_single_cut_sites[backbone_enzymes[1]][0]
+        except KeyError:
+            raise KeyError('The enzymes(s) selected are not found with a single cut site. Review the self.shared_single_enzymes and select again')
+        
+        insert_seq = self.insert_rsfinder.input_seq
+        try:
+            insert_locs = self.insert_single_cut_sites[insert_enzymes[0]][0], self.insert_single_cut_sites[insert_enzymes[1]][0]
+        except KeyError:
+            raise KeyError('The enzymes(s) selected are not found with a single cut site. Review the self.shared_single_enzymes and select again')
+
+        # Check for compatability of enzymes
+        # Cut the backbone seq
+        lhs_backbone_seq, _, rhs_backbone_seq = self._cut_seq(backbone_seq, backbone_locs)
+        # Cut the input seq
+        _, middle_insert_seq, _ = self._cut_seq(insert_seq, insert_locs)
+        # Check the orientation for the input_seq and reverse if necessary i.e. if (A,B) != (A,B)? then reverse
+        print(backbone_seq)
+        print(lhs_backbone_seq, rhs_backbone_seq)
+        print(insert_seq)
+        print(middle_insert_seq)
+   
     # Things to do:
-    # 1) Uncover compatible RS cut sites
+    # 1) Uncover compatible RS cut sites - Done!!
     # 2) Insert insert_seq into backbone_seq according to (5' enzyme, 3' enzyme) - name self._integrated_rsfinder
     #   a) Make sure to have insert oritentiation the correct way around i.e. if enzymes (A,B) for backbone, and (B,A) for insert then need to reverse the inesert
     # 3) Produce report of integrated sequence ()
