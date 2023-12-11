@@ -19,6 +19,14 @@ def compatible_enzymes(enzyme1, enzyme2):
     return AllEnzymes.get(enzyme2) in AllEnzymes.get(enzyme1).compatible_end()
 
 def compatible_enzymes_matrix(backbone_enzymes, insert_enzymes):
+    """
+    Search two lists of enzymes and determine if they have compatible ends 
+    (through the Bio.Restriction.ENZYNME objects) and the direction of the insert
+    """
+    compatible_ends = True
+    reverse_seq = False
+    ambiguous_insert = False
+
     matrix = numpy.empty((len(backbone_enzymes), len(insert_enzymes)))
 
     for i, backbone_enzyme in enumerate(backbone_enzymes):
@@ -29,15 +37,17 @@ def compatible_enzymes_matrix(backbone_enzymes, insert_enzymes):
     
     diagonal = all(matrix[i][i] == True for i in range(min(len(backbone_enzymes), len(insert_enzymes))))
     anti_diagonal = all(matrix[i][len(insert_enzymes)-i-1] == True for i in range(min(len(backbone_enzymes), len(insert_enzymes))))
+    only_one_compatible_end = numpy.sum(matrix, axis = 1)
 
-    rowsums = numpy.sum(matrix, axis = 1)
-    print(rowsums)
+    if not all(only_one_compatible_end):
+        ambiguous_insert = True
+
+    if (diagonal == False) and (anti_diagonal == False):
+        compatible_ends = False
     if anti_diagonal:
         reverse_seq = True
-    else:
-        reverse_seq = False
-    print(diagonal)
-    print(anti_diagonal)
+
+    return compatible_ends, reverse_seq, ambiguous_insert
 
 class RSFinder():
     """
