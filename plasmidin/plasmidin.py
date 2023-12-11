@@ -1,6 +1,7 @@
 import pandas
 from Bio.Restriction import Analysis, RestrictionBatch, CommOnly, AllEnzymes
 from Bio.Seq import Seq
+import numpy
 
 #Should I put this in RSFinder?
 def enzyme_dict_to_string(n_cut_enzymes: dict):
@@ -16,6 +17,27 @@ def return_shared_dict(cut_enzymes: dict, shared_enzymes):
 
 def compatible_enzymes(enzyme1, enzyme2):
     return AllEnzymes.get(enzyme2) in AllEnzymes.get(enzyme1).compatible_end()
+
+def compatible_enzymes_matrix(backbone_enzymes, insert_enzymes):
+    matrix = numpy.empty((len(backbone_enzymes), len(insert_enzymes)))
+
+    for i, backbone_enzyme in enumerate(backbone_enzymes):
+        for j, insert_enzyme in enumerate(insert_enzymes):
+            matrix[i][j] = compatible_enzymes(backbone_enzyme, insert_enzyme)
+
+    print(matrix)
+    
+    diagonal = all(matrix[i][i] == True for i in range(min(len(backbone_enzymes), len(insert_enzymes))))
+    anti_diagonal = all(matrix[i][len(insert_enzymes)-i-1] == True for i in range(min(len(backbone_enzymes), len(insert_enzymes))))
+
+    rowsums = numpy.sum(matrix, axis = 1)
+    print(rowsums)
+    if anti_diagonal:
+        reverse_seq = True
+    else:
+        reverse_seq = False
+    print(diagonal)
+    print(anti_diagonal)
 
 class RSFinder():
     """
@@ -374,11 +396,11 @@ class RSInserter():
     def _cut_seq(self, seq: Seq, cut_site_locs):
         lhs_loc = cut_site_locs[0]
         rhs_loc = cut_site_locs[1]
-        reverse_seq = False
+        # reverse_seq = False
         if lhs_loc > rhs_loc:
             lhs_loc, rhs_loc = rhs_loc, lhs_loc
-            reverse_seq = True
-        return (seq[:lhs_loc-1], seq[lhs_loc-1:rhs_loc-1], seq[rhs_loc-1:]), reverse_seq #because python
+            # reverse_seq = True
+        return (seq[:lhs_loc-1], seq[lhs_loc-1:rhs_loc-1], seq[rhs_loc-1:])#, reverse_seq #because python
         
     def inegrate_seq(self, backbone_enzymes, insert_enzymes):
         backbone_seq = self.backbone_rsfinder.input_seq
@@ -390,12 +412,12 @@ class RSInserter():
         insert_seq = self.insert_rsfinder.input_seq
         try:
             if insert_enzymes[0] == insert_enzymes[1]: #Allow cutting of the same enzyme twice
-                single_insert_enzyme = True
+                ambiguous_insert = True
                 insert_two_cut_sites =  self.insert_rsfinder.n_cut_sites(2)
                 insert_locs = insert_two_cut_sites[insert_enzymes[0]]
                 print('Warning: Cutting the insert with a single restriction enzyme so oritentation will be ambiguous!')
             else: #double cut within both
-                single_insert_enzyme = False
+                ambiguous_insert = False
                 insert_locs = self.insert_single_cut_sites[insert_enzymes[0]][0], self.insert_single_cut_sites[insert_enzymes[1]][0]
         except KeyError:
             raise KeyError('The enzymes(s) selected are not compatible, incorrect cut sites to know integration unambiguously. Review the enzymes and select again')
@@ -417,7 +439,7 @@ class RSInserter():
         integrated_seq = lhs_backbone_seq + middle_insert_seq + rhs_backbone_seq
         self._integrated_rsfinder = RSFinder(integrated_seq, self.backbone_rsfinder.linear, self.rb)
 
-        if single_insert_enzyme:
+        if ambiguous_insert:
             integrated_seq_b = lhs_backbone_seq + middle_insert_seq[::-1] + rhs_backbone_seq
             self._additional_integrated_rsfinder = RSFinder(integrated_seq_b, self.backbone_rsfinder.linear, self.rb)
   
