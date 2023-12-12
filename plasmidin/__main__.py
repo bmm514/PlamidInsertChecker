@@ -67,8 +67,11 @@ def test_RSInserter():
     print('#'*20)
     rsinserter.inegrate_seq(('MaeII', 'EcoRI'), ('MaeII', 'EcoRI'))
     print(rsinserter.integrated_rsfinder.input_seq)
-
-
+    #include test for same insert site, need to find one that is not ambiguous!
+    print(rsinserter.insert_rsfinder.n_cut_sites(2))
+    print('#'*20)
+    rsinserter.inegrate_seq(('MaeII', 'EcoRI'), ('AbaSI', 'AbaSI'))
+    print(rsinserter.integrated_rsfinder.input_seq)
 
 
 
