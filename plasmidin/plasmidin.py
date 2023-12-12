@@ -414,13 +414,15 @@ class RSInserter():
     def _cut_seq(self, seq: Seq, cut_site_locs):
         lhs_loc = cut_site_locs[0]
         rhs_loc = cut_site_locs[1]
-        # reverse_seq = False
+        reverse_seq = False
         if lhs_loc > rhs_loc:
             lhs_loc, rhs_loc = rhs_loc, lhs_loc
-            # reverse_seq = True
-        return (seq[:lhs_loc-1], seq[lhs_loc-1:rhs_loc-1], seq[rhs_loc-1:])#, reverse_seq #because python
+            reverse_seq = True
+        return (seq[:lhs_loc-1], seq[lhs_loc-1:rhs_loc-1], seq[rhs_loc-1:]), reverse_seq #because python
         
     def inegrate_seq(self, backbone_enzymes, insert_enzymes):
+        print(backbone_enzymes)
+        print(insert_enzymes)
         backbone_ambiguous, enzyme = ambiguous_cut(backbone_enzymes)
         if backbone_ambiguous:
             raise AmbiguousCutError(enzyme)
@@ -450,11 +452,14 @@ class RSInserter():
         # Check for compatability of enzymes - TO DO!!!!!
         # Cut the backbone seq
         # (lhs_backbone_seq, _, rhs_backbone_seq), backbone_reverse_seq = self._cut_seq(backbone_seq, backbone_locs)
-        (lhs_backbone_seq, _, rhs_backbone_seq) = self._cut_seq(backbone_seq, backbone_locs)
-
+        (lhs_backbone_seq, _, rhs_backbone_seq), backbone_reverse_enzymes = self._cut_seq(backbone_seq, backbone_locs)
+        if backbone_reverse_enzymes:
+            backbone_enzymes = [i for i in reversed(backbone_enzymes)]
         # Cut the input seq
         # (_, middle_insert_seq, _), insert_reverse_seq = self._cut_seq(insert_seq, insert_locs)
-        (_, middle_insert_seq, _) = self._cut_seq(insert_seq, insert_locs)
+        (_, middle_insert_seq, _), insert_reverse_enzymes = self._cut_seq(insert_seq, insert_locs)
+        if insert_reverse_enzymes:
+            insert_enzymes = [i for i in reversed(insert_enzymes)]
 
         #Orient correctly, need to check
         # if backbone_reverse_seq:
