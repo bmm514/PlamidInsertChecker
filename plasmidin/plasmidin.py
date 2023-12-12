@@ -449,17 +449,23 @@ class RSInserter():
 
         # Check for compatability of enzymes - TO DO!!!!!
         # Cut the backbone seq
-        (lhs_backbone_seq, _, rhs_backbone_seq), backbone_reverse_seq = self._cut_seq(backbone_seq, backbone_locs)
+        # (lhs_backbone_seq, _, rhs_backbone_seq), backbone_reverse_seq = self._cut_seq(backbone_seq, backbone_locs)
+        (lhs_backbone_seq, _, rhs_backbone_seq) = self._cut_seq(backbone_seq, backbone_locs)
+
         # Cut the input seq
-        (_, middle_insert_seq, _), insert_reverse_seq = self._cut_seq(insert_seq, insert_locs)
+        # (_, middle_insert_seq, _), insert_reverse_seq = self._cut_seq(insert_seq, insert_locs)
+        (_, middle_insert_seq, _) = self._cut_seq(insert_seq, insert_locs)
 
         #Orient correctly, need to check
-        if backbone_reverse_seq:
-            lhs_backbone_seq, rhs_backbone_seq = rhs_backbone_seq, lhs_backbone_seq
+        # if backbone_reverse_seq:
+        #     lhs_backbone_seq, rhs_backbone_seq = rhs_backbone_seq, lhs_backbone_seq
         
-        if insert_reverse_seq:
-            middle_insert_seq = middle_insert_seq[::-1] #reverse orientation
-
+        # if insert_reverse_seq:
+        #     middle_insert_seq = middle_insert_seq[::-1] #reverse orientation
+        compatible_ends, reverse_seq, ambiguous_insert = compatible_enzymes_matrix(backbone_enzymes, insert_enzymes)
+        print(f'Compatible ends: {compatible_ends}')
+        print(f'Reverse Seq: {reverse_seq}')
+        print(f'Ambiguous insert: {ambiguous_insert}')
         #Need to include a second seq if the insert has been cut with a single enzyme!!!!
         integrated_seq = lhs_backbone_seq + middle_insert_seq + rhs_backbone_seq
         self._integrated_rsfinder = RSFinder(integrated_seq, self.backbone_rsfinder.linear, self.rb)
