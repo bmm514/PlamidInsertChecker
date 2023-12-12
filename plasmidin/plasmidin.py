@@ -3,6 +3,7 @@ from Bio.Restriction import Analysis, RestrictionBatch, CommOnly, AllEnzymes
 from Bio.Seq import Seq
 import numpy
 
+from plasmidin_exceptions import AmbiguousCutError
 #Should I put this in RSFinder?
 def enzyme_dict_to_string(n_cut_enzymes: dict):
     """Convert an analysis dictionary enzyme objects to the string name"""
@@ -18,6 +19,15 @@ def return_shared_dict(cut_enzymes: dict, shared_enzymes):
 def compatible_enzymes(enzyme1, enzyme2):
     return AllEnzymes.get(enzyme2) in AllEnzymes.get(enzyme1).compatible_end()
 
+def ambiguous_cut(enzymes):
+    ambiguous_list = []
+    for enzyme_name in enzymes:
+        enzyme = AllEnzymes.get(enzyme_name)
+        if enzyme.is_ambiguous():
+            return True, enzyme
+    else:
+        return False, None
+
 def compatible_enzymes_matrix(backbone_enzymes, insert_enzymes):
     """
     Search two lists of enzymes and determine if they have compatible ends 
@@ -32,8 +42,6 @@ def compatible_enzymes_matrix(backbone_enzymes, insert_enzymes):
     for i, backbone_enzyme in enumerate(backbone_enzymes):
         for j, insert_enzyme in enumerate(insert_enzymes):
             matrix[i][j] = compatible_enzymes(backbone_enzyme, insert_enzyme)
-
-    print(matrix)
     
     diagonal = all(matrix[i][i] == True for i in range(min(len(backbone_enzymes), len(insert_enzymes))))
     anti_diagonal = all(matrix[i][len(insert_enzymes)-i-1] == True for i in range(min(len(backbone_enzymes), len(insert_enzymes))))
@@ -413,6 +421,13 @@ class RSInserter():
         return (seq[:lhs_loc-1], seq[lhs_loc-1:rhs_loc-1], seq[rhs_loc-1:])#, reverse_seq #because python
         
     def inegrate_seq(self, backbone_enzymes, insert_enzymes):
+        backbone_ambiguous, enzyme = ambiguous_cut(backbone_enzymes)
+        if backbone_ambiguous:
+            raise AmbiguousCutError(enzyme)
+        insert_ambiguous, enzyme = ambiguous_cut(insert_enzymes)
+        if insert_ambiguous:
+            raise AmbiguousCutError(enzyme)
+        
         backbone_seq = self.backbone_rsfinder.input_seq
         try:
             backbone_locs = self.backbone_single_cut_sites[backbone_enzymes[0]][0], self.backbone_single_cut_sites[backbone_enzymes[1]][0]
@@ -458,7 +473,7 @@ class RSInserter():
     # 2) Insert insert_seq into backbone_seq according to (5' enzyme, 3' enzyme) - name self._integrated_rsfinder
     #   a) Make sure to have insert oritentiation the correct way around i.e. if enzymes (A,B) for backbone, and (B,A) for insert then need to reverse the inesert
     # 3) Produce report of integrated sequence ()
-        
+
 #This should be part of a seperate class that takes in 2 sequences i.e. plasmid and insert
 def cut_and_insert(backbone_seq, backbone_rs, backbone_enzymes, insertion_seq, insertion_rs, insertion_enzymes):
     backbone_lhs, _, backbone_rhs = cut_enzymes(backbone_seq, backbone_rs, backbone_enzymes)
