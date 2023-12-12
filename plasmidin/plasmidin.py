@@ -3,7 +3,7 @@ from Bio.Restriction import Analysis, RestrictionBatch, CommOnly, AllEnzymes
 from Bio.Seq import Seq
 import numpy
 
-from plasmidin_exceptions import AmbiguousCutError
+from plasmidin_exceptions import AmbiguousCutError, CompatibleEndsError
 #Should I put this in RSFinder?
 def enzyme_dict_to_string(n_cut_enzymes: dict):
     """Convert an analysis dictionary enzyme objects to the string name"""
@@ -466,6 +466,11 @@ class RSInserter():
         print(f'Compatible ends: {compatible_ends}')
         print(f'Reverse Seq: {reverse_seq}')
         print(f'Ambiguous insert: {ambiguous_insert}')
+        if not compatible_ends:
+            raise CompatibleEndsError
+        
+        if reverse_seq:
+            middle_insert_seq = middle_insert_seq[::-1]
         #Need to include a second seq if the insert has been cut with a single enzyme!!!!
         integrated_seq = lhs_backbone_seq + middle_insert_seq + rhs_backbone_seq
         self._integrated_rsfinder = RSFinder(integrated_seq, self.backbone_rsfinder.linear, self.rb)
@@ -478,7 +483,7 @@ class RSInserter():
     # 1) Uncover compatible RS cut sites - Done!!
     # 2) Insert insert_seq into backbone_seq according to (5' enzyme, 3' enzyme) - name self._integrated_rsfinder
     #   a) Make sure to have insert oritentiation the correct way around i.e. if enzymes (A,B) for backbone, and (B,A) for insert then need to reverse the inesert
-    # 3) Produce report of integrated sequence ()
+    # 3) Produce report of integrated sequence() 
 
 #This should be part of a seperate class that takes in 2 sequences i.e. plasmid and insert
 def cut_and_insert(backbone_seq, backbone_rs, backbone_enzymes, insertion_seq, insertion_rs, insertion_enzymes):
