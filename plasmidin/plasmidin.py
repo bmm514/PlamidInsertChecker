@@ -62,7 +62,7 @@ class RSFinder():
     A class to find restriction enzyme sites within an input sequence
     """
     #Output can be used to compare common restriction sites
-    def __init__(self, input_seq, linear: bool, rb = RestrictionBatch(CommOnly)):
+    def __init__(self, input_seq, linear: bool, rb = RestrictionBatch(CommOnly), remove_ambiguous = True):
         """
         input_seq - a Bio.Seq.Seq object
         linear_seq - boolean for whether the sequence is treated as linear or circular
@@ -71,6 +71,10 @@ class RSFinder():
         self._input_seq = input_seq
         self._linear = linear #do not want to be able to change in the class
         self._rb = rb
+        if remove_ambiguous:
+            self._remove_ambiguous_enzymes()
+        
+        print(self.rb.elements())
 
         self._analysis = self.restriction_site_analysis()
         self._single_cut_enzymes = self.single_cut_site()
@@ -153,6 +157,16 @@ class RSFinder():
         if self._supplier_names is set():
             print('There are no current suppliers that have been selected to be filtered')
         return self._supplier_names
+    
+    def _remove_ambiguous_enzymes(self):
+        old_rb = self.rb
+        new_rb = RestrictionBatch()
+        for element in old_rb.elements():
+            enzyme = AllEnzymes.get(element)
+            if not enzyme.is_ambiguous():
+                new_rb.add(enzyme)
+        
+        self._rb = new_rb
     
     def change_rb(self, rb, update = True):
         """
