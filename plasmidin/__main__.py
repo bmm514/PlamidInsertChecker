@@ -38,66 +38,38 @@ def test_RSFinder():
 
     # print(rsfinder.supplier_names)
 def test_RSInserter():
-    backbone_seq = Seq('ATTTTCTGAATTCGCTAACGTTA')
+    backbone_seq = Seq('ATGTTTAAACTTTCTGAATTCGCTAACGTGTACTA')
     backbone_linear = False
-    insert_seq = Seq('AAAAGAATTCNNNNNNNNNAACGTTTAT')
+    insert_seq = Seq('AATAGTACTAGATGGTTTAAACAGTCTAAGAATTCNNNNNNNNNAACGTTTAGTACTAT')
     insert_linear = True
 
     rsinserter = RSInserter(backbone_seq, insert_seq, backbone_linear, insert_linear)
-    # print(rsinserter._backbone_rsfinder.all_cut_enzymes)
-    # print(rsinserter._insert_rsfinder.all_cut_enzymes)
-    print(rsinserter.shared_single_enzymes)
-    print(rsinserter.backbone_single_cut_sites)
-    print(rsinserter.insert_single_cut_sites)
-    # print(rsinserter.shared_any_enzymes)
-    # EcoRI = G^AATTC
-    print('#'*20)
-    # rsinserter.inegrate_seq(('EcoRI', 'MaeII'), ('AbaSI', 'AbaSI'))
+    # print(rsinserter.shared_single_enzymes)
+    # print(rsinserter.backbone_single_cut_sites)
+    # print(rsinserter.insert_single_cut_sites)
+    # print('#'*20)
+    # rsinserter.inegrate_seq(('EcoRI', 'MaeII'), ('EcoRI', 'MaeII'))
     # print(rsinserter.integrated_rsfinder.input_seq)
-    # print(rsinserter.additional_integrated_rsfinder.input_seq)
-    print('#'*20)
-    rsinserter.inegrate_seq(('EcoRI', 'MaeII'), ('EcoRI', 'MaeII'))
-    print(rsinserter.integrated_rsfinder.input_seq)
-    print('#'*20)
-    rsinserter.inegrate_seq(('EcoRI', 'MaeII'), ('MaeII', 'EcoRI'))
-    print(rsinserter.integrated_rsfinder.input_seq)
-    print('#'*20)   
-    rsinserter.inegrate_seq(('MaeII', 'EcoRI'), ('EcoRI', 'MaeII'))
-    print(rsinserter.integrated_rsfinder.input_seq)
-    print('#'*20)
-    rsinserter.inegrate_seq(('MaeII', 'EcoRI'), ('MaeII', 'EcoRI'))
-    print(rsinserter.integrated_rsfinder.input_seq)
+    # print('#'*20)
+    # rsinserter.inegrate_seq(('EcoRI', 'MaeII'), ('MaeII', 'EcoRI'))
+    # print(rsinserter.integrated_rsfinder.input_seq)
+    # print('#'*20)   
+    # rsinserter.inegrate_seq(('MaeII', 'EcoRI'), ('EcoRI', 'MaeII'))
+    # print(rsinserter.integrated_rsfinder.input_seq)
+    # print('#'*20)
+    # rsinserter.inegrate_seq(('MaeII', 'EcoRI'), ('MaeII', 'EcoRI'))
+    # print(rsinserter.integrated_rsfinder.input_seq)
     #include test for same insert site, need to find one that is not ambiguous!
+    print('#'*20)  
     print(rsinserter.insert_rsfinder.n_cut_sites(2))
-    print('#'*20)
-    rsinserter.inegrate_seq(('MaeII', 'EcoRI'), ('AbaSI', 'AbaSI'))
+    print(rsinserter.insert_rsfinder.single_cut_enzymes)
+    print(rsinserter.backbone_rsfinder.single_cut_enzymes)
+    print(rsinserter.backbone_rsfinder.single_cut_enzymes['MssI'])
+    print(rsinserter.shared_single_enzymes)
+    #The problem is with MssI not being shared between the backbone and the insert sequences!!
+    #Need a fix for the above but also need to find better restriction enzymes to test (AfaI and ScaI have are shared)
+    rsinserter.inegrate_seq(('MssI', 'AfaI'), ('ScaI', 'ScaI'))
     print(rsinserter.integrated_rsfinder.input_seq)
-
-
-
-
-# def test_main():
-#     plasmid_seq = Seq('ATTTTCTGAATTCGCTAACGTTA')
-#     dna_seq = Seq('AAAAGAATTCNNNNNNAACGTTTAT')
-
-#     # (analysis_plasmid, analysis_dna), (filter_plasmid_rs, filter_dna_rs), shared_enzymes = filter_seqs(plasmid_seq, False, dna_seq, True)
-    
-#     inserted_seq = cut_and_insert(
-#         plasmid_seq, filter_plasmid_rs, ('EcoRI', 'AclI'),
-#         dna_seq, filter_dna_rs, ('EcoRI', 'AclI')
-#         )
-
-#     csvout_plasmid = '/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info.csv'
-#     csvout_dna = '/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/dna_info.csv'
-#     csvout_inserted = '/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/inserted_info.csv'
-
-#     # make_restriction_enzyme_table(analysis_plasmid, csvout_plasmid, shared_enzymes)
-#     # make_restriction_enzyme_table(analysis_dna, csvout_dna, shared_enzymes)
-
-#     analysis_inserted = Analysis(RestrictionBatch(CommOnly), inserted_seq, True)
-#     # make_restriction_enzyme_table(analysis_inserted, csvout_inserted, {})
-
-#     return analysis_plasmid, analysis_dna
 
 if __name__ == '__main__':
     # test_main()
