@@ -92,7 +92,7 @@ class PlasmidDrawer():
                 end = end
                 )
         else:
-            raise NotImplementedError('Please chose from linear or circular')
+            raise NotImplementedError('Please choose from linear or circular')
         
         self.gd_diagram.write(diagram_file, filetype)
 
@@ -102,7 +102,7 @@ def main():
             SeqFeature(SimpleLocation(100,101)), {
             'feature_name' : 'feature1',
             'sigil' : 'BOX',
-            'color' : colors.lightblue,
+            'color' : colors.pink,
             'label' : True,
             'label_size' : 14,
             'label_angle' : 45
@@ -132,7 +132,7 @@ def main():
             SeqFeature(SimpleLocation(320, 325)), {
             'feature_name' : 'feature3',
             'sigil' : 'BOX',
-            'color' : colors.green,
+            'color' : colors.darkblue,
             'label' : True,
             'label_size' : 14,
             'label_angle' : 45
@@ -145,6 +145,9 @@ def main():
     seq_id = 'TEST'
 
     plasmid_drawer = PlasmidDrawer(Seq(seq), seq_id, feature_info)
+    plasmid_drawer.draw_gd_diagram('test.pdf', 'circular', {})
 
     return plasmid_drawer
         
+if __name__ == '__main__':
+    main()
