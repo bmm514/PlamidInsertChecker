@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from Bio.Seq import Seq
 from Bio.Restriction import RestrictionBatch, AllEnzymes, Analysis, CommOnly
 
@@ -77,20 +79,28 @@ def test_pbr322():
     rsfinder = RSFinder(seq, linear)
 
     print(rsfinder.single_cut_enzymes)
-    print(rsfinder.n_cut_sites(2))
-    for i in range(10):
-        print(i+1, len(rsfinder.n_cut_sites(i+1)))
-    print(len(rsfinder.all_cut_enzymes))
-    max_cuts = 0
-    for key, values in rsfinder.all_cut_enzymes.items():
-        if len(values) > max_cuts:
-            max_key = key
-            max_cuts = len(values)
+    site_dict = defaultdict(lambda : [])
+    for enzyme_name, cut_sites in rsfinder.all_cut_enzymes.items():
+        for cut_site in cut_sites:
+            site_dict[cut_site].append(enzyme_name)
     
-    print(max_key, max_cuts)
-            
+    for cut_site, enzymes in site_dict.items():
+        if len(enzymes) == 2:
+            print(enzymes, cut_site)
+
+    # print(rsfinder.n_cut_sites(2))
+    # print(len(rsfinder.all_cut_enzymes))
+    # max_cuts = 0
+    # for key, values in rsfinder.all_cut_enzymes.items():
+    #     if len(values) > max_cuts:
+    #         max_key = key
+    #         max_cuts = len(values)
+    
+    # print(max_key, max_cuts)
+
 if __name__ == '__main__':
     # test_main()
     # test_RSFinder()
     # test_RSInserter()
-    test_pbr322()
+    # test_pbr322()
+    test_fasta_open()
