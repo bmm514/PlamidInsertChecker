@@ -1,9 +1,13 @@
+from os import path
+
 import pandas
 from Bio.Restriction import Analysis, RestrictionBatch, CommOnly, AllEnzymes
 from Bio.Seq import Seq
+from Bio import SeqIO
 import numpy
 
-from plasmidin_exceptions import AmbiguousCutError, CompatibleEndsError
+from plasmidin.plasmidin_exceptions import AmbiguousCutError, CompatibleEndsError
+
 #Should I put this in RSFinder?
 def enzyme_dict_to_string(n_cut_enzymes: dict):
     """Convert an analysis dictionary enzyme objects to the string name"""
@@ -46,8 +50,9 @@ def compatible_enzymes_matrix(backbone_enzymes, insert_enzymes):
     diagonal = all(matrix[i][i] == True for i in range(min(len(backbone_enzymes), len(insert_enzymes))))
     anti_diagonal = all(matrix[i][len(insert_enzymes)-i-1] == True for i in range(min(len(backbone_enzymes), len(insert_enzymes))))
     only_one_compatible_end = numpy.sum(matrix, axis = 1)
+    print(only_one_compatible_end)
 
-    if not all(only_one_compatible_end):
+    if any(only_one_compatible_end != 1):
         ambiguous_insert = True
 
     if (diagonal == False) and (anti_diagonal == False):
@@ -57,25 +62,36 @@ def compatible_enzymes_matrix(backbone_enzymes, insert_enzymes):
 
     return compatible_ends, reverse_seq, ambiguous_insert
 
+def parse_input_seq(input_seq):
+    """Determine whether an input seq is a fasta file or Seq object"""
+    if isinstance(input_seq, Seq):
+        return input_seq
+    elif path.isfile(input_seq):
+        return SeqIO.read(input_seq, 'fasta').seq
+    else:
+        raise TypeError(f'input_seq is not a Seq or valid fasta file')
+
 class RSFinder():
     """
     A class to find restriction enzyme sites within an input sequence
     """
     #Output can be used to compare common restriction sites
+    #To include:
+    #   - Make plasmid graphs section
     def __init__(self, input_seq, linear: bool, rb = RestrictionBatch(CommOnly), remove_ambiguous = True):
         """
         input_seq - a Bio.Seq.Seq object
         linear_seq - boolean for whether the sequence is treated as linear or circular
         rb - the Bio.Restriction.RestrictionBatch to use. Defaults to commercially availably restriction enzymes
+        remove_ambiguous - whether to remove the restriction enzymes with ambiguous cut sites from self.rb
         """
-        self._input_seq = input_seq
-        self._linear = linear #do not want to be able to change in the class
+        self._input_seq = parse_input_seq(input_seq)
+        self._linear = linear 
         self._rb = rb
+        self._remove_ambiguous = remove_ambiguous
         if remove_ambiguous:
             self._remove_ambiguous_enzymes()
         
-        print(self.rb.elements())
-
         self._analysis = self.restriction_site_analysis()
         self._single_cut_enzymes = self.single_cut_site()
         self._all_cut_enzymes = self.any_cut_sites()
@@ -123,6 +139,10 @@ class RSFinder():
             self._rb = rb
         else:
             raise ValueError(f'rb is not a Bio.Restriction.RestrictionBatch object so not updating')
+    
+    @property
+    def remove_ambiguous(self):
+        return self._remove_ambiguous
     
     @property
     def analysis(self):
@@ -349,10 +369,10 @@ class RSFinder():
 class RSInserter():
     """A class to insert a sequence into another with restriction sites"""
 
-    def __init__(self, backbone_seq, insert_seq, backbone_linear = False, insert_linear = True, rb = RestrictionBatch(CommOnly)):
+    def __init__(self, backbone_seq, insert_seq, backbone_linear = False, insert_linear = True, rb = RestrictionBatch(CommOnly), remove_ambiguous = True):
         self._rb = rb
-        self._backbone_rsfinder = RSFinder(backbone_seq, backbone_linear, rb)
-        self._insert_rsfinder = RSFinder(insert_seq, insert_linear, rb)
+        self._backbone_rsfinder = RSFinder(backbone_seq, backbone_linear, rb, remove_ambiguous)
+        self._insert_rsfinder = RSFinder(insert_seq, insert_linear, rb, remove_ambiguous)
         self._integrated_rsfinder = None
         self._additional_integrated_rsfinder = None
 
@@ -434,9 +454,11 @@ class RSInserter():
             reverse_seq = True
         return (seq[:lhs_loc-1], seq[lhs_loc-1:rhs_loc-1], seq[rhs_loc-1:]), reverse_seq #because python
         
-    def inegrate_seq(self, backbone_enzymes, insert_enzymes):
+    def integrate_seq(self, backbone_enzymes, insert_enzymes, backbone_n_cut_sites = 1, insert_n_cut_sites = 1):
         print(backbone_enzymes)
         print(insert_enzymes)
+        shared_enzymes, backbone_shared_cut_sites, insert_shared_cut_sites = self._shared_enzymes(backbone_n_cut_sites, insert_n_cut_sites)
+
         backbone_ambiguous, enzyme = ambiguous_cut(backbone_enzymes)
         if backbone_ambiguous:
             raise AmbiguousCutError(enzyme)
@@ -446,7 +468,7 @@ class RSInserter():
         
         backbone_seq = self.backbone_rsfinder.input_seq
         try:
-            backbone_locs = self.backbone_single_cut_sites[backbone_enzymes[0]][0], self.backbone_single_cut_sites[backbone_enzymes[1]][0]
+            backbone_locs = backbone_shared_cut_sites[backbone_enzymes[0]][0], backbone_shared_cut_sites[backbone_enzymes[1]][0]
         except KeyError:
             raise KeyError('The enzymes(s) selected are not found with a single cut site. Review the self.shared_single_enzymes and select again')
         
@@ -454,12 +476,12 @@ class RSInserter():
         try:
             if insert_enzymes[0] == insert_enzymes[1]: #Allow cutting of the same enzyme twice
                 ambiguous_insert = True
-                insert_two_cut_sites =  self.insert_rsfinder.n_cut_sites(2)
-                insert_locs = insert_two_cut_sites[insert_enzymes[0]]
+                # insert_two_cut_sites =  self.insert_rsfinder.n_cut_sites(2)
+                # insert_locs = insert_two_cut_sites[insert_enzymes[0]]
                 print('Warning: Cutting the insert with a single restriction enzyme so oritentation will be ambiguous!')
             else: #double cut within both
                 ambiguous_insert = False
-                insert_locs = self.insert_single_cut_sites[insert_enzymes[0]][0], self.insert_single_cut_sites[insert_enzymes[1]][0]
+            insert_locs = insert_shared_cut_sites[insert_enzymes[0]][0], insert_shared_cut_sites[insert_enzymes[1]][0]
         except KeyError:
             raise KeyError('The enzymes(s) selected are not compatible, incorrect cut sites to know integration unambiguously. Review the enzymes and select again')
 
@@ -494,6 +516,7 @@ class RSInserter():
         integrated_seq = lhs_backbone_seq + middle_insert_seq + rhs_backbone_seq
         self._integrated_rsfinder = RSFinder(integrated_seq, self.backbone_rsfinder.linear, self.rb)
 
+        print(f'{ambiguous_insert} is ambiguous_insert')
         if ambiguous_insert:
             integrated_seq_b = lhs_backbone_seq + middle_insert_seq[::-1] + rhs_backbone_seq
             self._additional_integrated_rsfinder = RSFinder(integrated_seq_b, self.backbone_rsfinder.linear, self.rb)
