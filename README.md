@@ -7,11 +7,6 @@ This is an installable python package that can be used to interrogate DNA sequen
 
 ```pip install plasmidin```
 
-To create plasmid maps ReportLab must be installed by first creating an account at ReportLab(include link). Then installing with:
-```pip install FINISH OFF```
-
-
-
 ## Useage
 1a. Import the python library
 ```from plasmidin import RSInserter```
