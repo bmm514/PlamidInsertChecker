@@ -10,8 +10,6 @@ class PlasmidDrawer():
         self._seq = seq
         self._seq_id = seq_id
         self._seq_length = len(seq)
-        #feature_info should be all the relevant info (make via rsfinder)
-        #It must be a SeqFeature(SimpleLocation(start, end)), info (see below for dict details)
         self._feature_info = feature_info
 
         self._init_gd_diagram()
@@ -77,7 +75,16 @@ class PlasmidDrawer():
     
     def draw_gd_diagram(self, diagram_file, diagram_format, draw_settings, filetype = 'PDF'):
         if diagram_format == 'linear':
-            pass
+            pagesize = draw_settings.get('pagesize', 'A4')
+            start = 0
+            end = self.seq_length
+            self.gd_diagram.draw(
+                format = diagram_format, 
+                circular = False, 
+                pagesize = pagesize, 
+                start = start,
+                end = end
+                )
         elif diagram_format == 'circular':
             pagesize = draw_settings.get('pagesize', 'A4')
             circle_core = draw_settings.get('circle_core', 0.5)

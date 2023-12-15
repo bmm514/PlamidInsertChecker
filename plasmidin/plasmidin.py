@@ -3,10 +3,12 @@ from os import path
 import pandas
 from Bio.Restriction import Analysis, RestrictionBatch, CommOnly, AllEnzymes
 from Bio.Seq import Seq
+from Bio.SeqFeature import SeqFeature, SimpleLocation
 from Bio import SeqIO
 import numpy
+from reportlab.lib import colors
 
-from plasmidin.plasmidin_exceptions import AmbiguousCutError, CompatibleEndsError
+from plasmidin_exceptions import AmbiguousCutError, CompatibleEndsError
 
 #Should I put this in RSFinder?
 def enzyme_dict_to_string(n_cut_enzymes: dict):
@@ -50,7 +52,6 @@ def compatible_enzymes_matrix(backbone_enzymes, insert_enzymes):
     diagonal = all(matrix[i][i] == True for i in range(min(len(backbone_enzymes), len(insert_enzymes))))
     anti_diagonal = all(matrix[i][len(insert_enzymes)-i-1] == True for i in range(min(len(backbone_enzymes), len(insert_enzymes))))
     only_one_compatible_end = numpy.sum(matrix, axis = 1)
-    print(only_one_compatible_end)
 
     if any(only_one_compatible_end != 1):
         ambiguous_insert = True
@@ -121,6 +122,8 @@ class RSFinder():
             'Y': 'SinaClon BioScience Co.'
         }
 
+        self._feature_info = None
+
     @property
     def input_seq(self):
         return self._input_seq
@@ -178,6 +181,12 @@ class RSFinder():
             print('There are no current suppliers that have been selected to be filtered')
         return self._supplier_names
     
+    @property
+    def feature_info(self):
+        if self._feature_info is list():
+            print('feature_info has not been created yet. Use RSFinder.create_enzyme_records() to create')
+        return self._feature_info
+
     def _remove_ambiguous_enzymes(self):
         old_rb = self.rb
         new_rb = RestrictionBatch()
@@ -365,6 +374,29 @@ class RSFinder():
         self._supplier_codes = set(supplier_codes)
 
         return supplier_filtered
+    
+    def create_enzyme_records(self, max_n_cut_sites = 2):
+        feature_info = []
+        for n_cuts in range(1, max_n_cut_sites + 1):
+            enzyme_cuts = self.n_cut_sites(n_cuts)
+            for enzyme_name, cut_sites in enzyme_cuts.items():
+                info = {
+                    'feature_name' : enzyme_name,
+                    'sigil' : 'BOX',
+                    'color' : colors.black,
+                    'label' : True,
+                    'label_size' : 14,
+                    'label_angle' : 0
+                }
+                #Need to work out a way to add length to seq_feature name if cut_site is already present
+                #This would remove the names ontop of each other
+                for cut_site in cut_sites:
+                    seq_feature = SeqFeature(SimpleLocation(cut_site, cut_site+1))
+                    feature_info.append((seq_feature, info))
+
+        self._feature_info = feature_info
+                
+                
 
 class RSInserter():
     """A class to insert a sequence into another with restriction sites"""

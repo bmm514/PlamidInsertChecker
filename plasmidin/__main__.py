@@ -3,7 +3,8 @@ from collections import defaultdict
 from Bio.Seq import Seq
 from Bio.Restriction import RestrictionBatch, AllEnzymes, Analysis, CommOnly
 
-from plasmidin import cut_and_insert, RSFinder, RSInserter
+from plasmidin import RSFinder, RSInserter
+from plasmid_diagrams import PlasmidDrawer
 
 #Sometimes need to select the correct interpreter in vscode using >python: Select Interpreter then chosing the env
 def test_RSFinder():
@@ -30,15 +31,21 @@ def test_RSFinder():
 
     # print(rsfinder.filter_enzymes(['EcoRI', 'AbaSI']))
     # print(rsfinder.enzyme_table.head())
-    rsfinder.save_enzyme_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info.csv', delimiter = ',')
-    dna_rsfinder.save_enzyme_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/dna_info.csv', delimiter = ',')
+    # rsfinder.save_enzyme_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info.csv', delimiter = ',')
+    # dna_rsfinder.save_enzyme_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/dna_info.csv', delimiter = ',')
     # print(rsfinder.supplier_filtered)
     # print(rsfinder.supplier_names)
-    rsfinder.filter_supplier({'B'})
+    # rsfinder.filter_supplier({'B'})
     # print(rsfinder.supplier_filtered)
-    rsfinder.save_supplier_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info_thermo.csv', delimiter = ',')
+    # rsfinder.save_supplier_table('/home/bmm41/PhD_VH/SWbioDTP_taught/DataSciMachLearn/plasmid_info_thermo.csv', delimiter = ',')
 
     # print(rsfinder.supplier_names)
+
+    rsfinder.create_enzyme_records(1)
+    for feature_info in rsfinder.feature_info[:10]:
+        print(feature_info[1]['feature_name'])
+        print(feature_info[0])
+
 def test_RSInserter():
     backbone_seq = Seq('ATGTTTAAACTTTCTGAATTCGCTAACGTGTACTA')
     backbone_linear = False
@@ -80,13 +87,19 @@ def test_pbr322():
 
     print(rsfinder.single_cut_enzymes)
     site_dict = defaultdict(lambda : [])
-    for enzyme_name, cut_sites in rsfinder.all_cut_enzymes.items():
+    for enzyme_name, cut_sites in rsfinder.single_cut_enzymes.items():
         for cut_site in cut_sites:
             site_dict[cut_site].append(enzyme_name)
     
-    for cut_site, enzymes in site_dict.items():
-        if len(enzymes) == 2:
-            print(enzymes, cut_site)
+    max_cuts = 0
+    for key, vals in site_dict.items():
+        if len(vals) > max_cuts:
+            max_cuts = len(vals)
+    print(max_cuts)
+    rsfinder.create_enzyme_records(1)
+
+    plasmid_drawer = PlasmidDrawer(rsfinder.input_seq, 'pBR322', rsfinder.feature_info)
+    plasmid_drawer.draw_gd_diagram('test.pdf', 'circular', {'pagesize' : 'A4', 'circle_core' : 0.9})
 
     # print(rsfinder.n_cut_sites(2))
     # print(len(rsfinder.all_cut_enzymes))
@@ -99,8 +112,6 @@ def test_pbr322():
     # print(max_key, max_cuts)
 
 if __name__ == '__main__':
-    # test_main()
     # test_RSFinder()
     # test_RSInserter()
-    # test_pbr322()
-    test_fasta_open()
+    test_pbr322()
