@@ -376,7 +376,7 @@ class RSFinder():
         return supplier_filtered
     
     def create_enzyme_records(self, max_n_cut_sites = 2):
-        feature_info = []
+        feature_dict = {}
         for n_cuts in range(1, max_n_cut_sites + 1):
             enzyme_cuts = self.n_cut_sites(n_cuts)
             for enzyme_name, cut_sites in enzyme_cuts.items():
@@ -392,7 +392,10 @@ class RSFinder():
                 #This would remove the names ontop of each other
                 for cut_site in cut_sites:
                     seq_feature = SeqFeature(SimpleLocation(cut_site, cut_site+1))
-                    feature_info.append((seq_feature, info))
+                    # feature_info.append((seq_feature, info))
+                    feature_info = feature_dict.get(cut_site)
+                    if feature_info is None:
+                        feature_dict[cut_site] = seq_feature, info
 
         self._feature_info = feature_info
                 
