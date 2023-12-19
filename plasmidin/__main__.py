@@ -85,7 +85,7 @@ def test_pbr322():
     linear = False
     rsfinder = RSFinder(seq, linear)
 
-    print(rsfinder.single_cut_enzymes)
+    # print(rsfinder.single_cut_enzymes)
     site_dict = defaultdict(lambda : [])
     for enzyme_name, cut_sites in rsfinder.single_cut_enzymes.items():
         for cut_site in cut_sites:
@@ -95,11 +95,11 @@ def test_pbr322():
     for key, vals in site_dict.items():
         if len(vals) > max_cuts:
             max_cuts = len(vals)
-    print(max_cuts)
+    # print(max_cuts)
     rsfinder.create_enzyme_records(1)
 
     plasmid_drawer = PlasmidDrawer(rsfinder.input_seq, 'pBR322', rsfinder.feature_info)
-    plasmid_drawer.draw_gd_diagram('test.pdf', 'circular', {'pagesize' : 'A4', 'circle_core' : 0.9})
+    plasmid_drawer.draw_gd_diagram('test.pdf', 'circular', {'pagesize' : 'A4', 'circle_core' : 0.5, 'track_size' : 0.1})
 
     # print(rsfinder.n_cut_sites(2))
     # print(len(rsfinder.all_cut_enzymes))

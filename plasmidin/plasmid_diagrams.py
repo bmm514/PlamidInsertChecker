@@ -6,10 +6,11 @@ from reportlab.lib import colors
 from reportlab.lib.units import cm
 
 class PlasmidDrawer():
-    def __init__(self, seq: Seq, seq_id: str, feature_info):
+    def __init__(self, seq: Seq, seq_id: str, feature_info, coodinate_step = 500):
         self._seq = seq
         self._seq_id = seq_id
         self._seq_length = len(seq)
+        self._coordinate_step = coodinate_step
         self._feature_info = feature_info
 
         self._init_gd_diagram()
@@ -41,15 +42,38 @@ class PlasmidDrawer():
     
     def _init_gd_diagram(self):
         seq_id = self.seq_id
+        seq_length = self.seq_length
+        coord_step = self._coordinate_step
 
         self._gd_diagram = GenomeDiagram.Diagram(seq_id)
-        self._gd_track_for_features = self._gd_diagram.new_track(1, name = 'CHANGE ME')
+
+        self._gd_track_for_coordinates = self._gd_diagram.new_track(2, name = 'Coodinates')
+        self._gd_coordinate_set = self._gd_track_for_coordinates.new_set()
+        for start_coord in range(0, seq_length, coord_step):
+            feature = SeqFeature(SimpleLocation(start_coord, start_coord + 1))
+            if start_coord == 0:
+                coord_name = f'1 / {seq_length}'
+            else:
+                coord_name = str(start_coord)
+            self._gd_coordinate_set.add_feature(
+                feature, 
+                name = coord_name, 
+                sigil = 'BOX',
+                color = colors.black,
+                label = True,
+                label_size = 11,
+                label_angle = 0
+                )
+
+        self._gd_track_for_features = self._gd_diagram.new_track(1, name = 'Restriction enzymes')
         self._gd_feature_set = self._gd_track_for_features.new_set()            
 
     def _init_features(self):
         feature_info = self._feature_info
 
-        for feature, info in feature_info:
+        for feature, info in feature_info.values():
+            # print(feature)
+            print(info)
             self.add_gd_feature(feature, info)
 
     def add_gd_feature(self, feature, info):
@@ -67,10 +91,10 @@ class PlasmidDrawer():
             color = color,
             label = label,
             label_size = label_size,
-            label_angle = label_angle
+            label_angle = label_angle,
             )
 
-    def remove_gd_feature(self, feature):
+    def remove_gd_feature(self, cut_site):
         raise NotImplementedError
     
     def draw_gd_diagram(self, diagram_file, diagram_format, draw_settings, filetype = 'PDF'):
@@ -88,6 +112,7 @@ class PlasmidDrawer():
         elif diagram_format == 'circular':
             pagesize = draw_settings.get('pagesize', 'A4')
             circle_core = draw_settings.get('circle_core', 0.5)
+            track_size = draw_settings.get('track_size', 0.5)
             start = 0
             end = self.seq_length
             self.gd_diagram.draw(
@@ -95,6 +120,7 @@ class PlasmidDrawer():
                 circular = True, 
                 pagesize = pagesize, 
                 circle_core = circle_core,
+                track_size = track_size,
                 start = start,
                 end = end
                 )

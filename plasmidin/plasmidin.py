@@ -380,26 +380,42 @@ class RSFinder():
         for n_cuts in range(1, max_n_cut_sites + 1):
             enzyme_cuts = self.n_cut_sites(n_cuts)
             for enzyme_name, cut_sites in enzyme_cuts.items():
+                print(enzyme_name)
                 info = {
                     'feature_name' : enzyme_name,
                     'sigil' : 'BOX',
                     'color' : colors.black,
                     'label' : True,
-                    'label_size' : 14,
-                    'label_angle' : 0
+                    'label_size' : 8,
+                    'label_angle' : 45
                 }
                 #Need to work out a way to add length to seq_feature name if cut_site is already present
                 #This would remove the names ontop of each other
                 for cut_site in cut_sites:
-                    seq_feature = SeqFeature(SimpleLocation(cut_site, cut_site+1))
-                    # feature_info.append((seq_feature, info))
-                    feature_info = feature_dict.get(cut_site)
-                    if feature_info is None:
-                        feature_dict[cut_site] = seq_feature, info
+                    feature_dict = search_update_feature_info(feature_dict, cut_site, info)
+                    # seq_feature = SeqFeature(SimpleLocation(cut_site, cut_site+1))
+                    # # feature_info.append((seq_feature, info))
+                    # feature_info = feature_dict.get(cut_site)
+                    # if feature_info is None:
+                    #     feature_dict[cut_site] = seq_feature, info
 
-        self._feature_info = feature_info
+        self._feature_info = feature_dict
                 
-                
+def search_update_feature_info(feature_dict, cut_site, info):
+    feature_info = feature_dict.get(cut_site)
+    if feature_info is not None:
+        seq_feature, old_info = feature_info
+        old_feature_name = old_info.get('feature_name')
+        feature_name = info.get('feature_name')
+        new_feature_name = f'{old_feature_name}, {feature_name}'
+        info['feature_name'] = new_feature_name
+    else:
+        seq_feature = SeqFeature(SimpleLocation(cut_site, cut_site+1))
+    
+    feature_dict[cut_site] = seq_feature, info
+
+    return feature_dict
+
 
 class RSInserter():
     """A class to insert a sequence into another with restriction sites"""
