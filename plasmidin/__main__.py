@@ -3,8 +3,8 @@ from collections import defaultdict
 from Bio.Seq import Seq
 from Bio.Restriction import RestrictionBatch, AllEnzymes, Analysis, CommOnly
 
-from plasmidin import RSFinder, RSInserter
-from plasmid_diagrams import PlasmidDrawer
+from plasmidin.plasmidin import RSFinder, RSInserter
+from plasmidin.plasmid_diagrams import PlasmidDrawer
 
 #Sometimes need to select the correct interpreter in vscode using >python: Select Interpreter then chosing the env
 def test_RSFinder():
