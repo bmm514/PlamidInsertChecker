@@ -8,7 +8,7 @@ from Bio import SeqIO
 import numpy
 from reportlab.lib import colors
 
-from plasmidin_exceptions import AmbiguousCutError, CompatibleEndsError
+from .plasmidin_exceptions import AmbiguousCutError, CompatibleEndsError
 
 #Should I put this in RSFinder?
 def enzyme_dict_to_string(n_cut_enzymes: dict):

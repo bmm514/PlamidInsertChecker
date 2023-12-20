@@ -11,6 +11,7 @@ class PlasmidDrawer():
         self._seq_id = seq_id
         self._seq_length = len(seq)
         self._coordinate_step = coodinate_step
+        self._coordinate_track = 3
         self._feature_info = feature_info
 
         self._init_gd_diagram()
@@ -47,12 +48,12 @@ class PlasmidDrawer():
 
         self._gd_diagram = GenomeDiagram.Diagram(seq_id)
 
-        self._gd_track_for_coordinates = self._gd_diagram.new_track(2, name = 'Coodinates')
+        self._gd_track_for_coordinates = self._gd_diagram.new_track(self._coordinate_track, name = 'Coodinates')
         self._gd_coordinate_set = self._gd_track_for_coordinates.new_set()
         for start_coord in range(0, seq_length, coord_step):
             feature = SeqFeature(SimpleLocation(start_coord, start_coord + 1))
             if start_coord == 0:
-                coord_name = f'1 / {seq_length}'
+                coord_name = f'1 / {seq_length + 1}'
             else:
                 coord_name = str(start_coord)
             self._gd_coordinate_set.add_feature(
@@ -98,23 +99,26 @@ class PlasmidDrawer():
         raise NotImplementedError
     
     def draw_gd_diagram(self, diagram_file, diagram_format, draw_settings, filetype = 'PDF'):
+        pagesize = draw_settings.get('pagesize', 'A4')
+        start = 0
+        end = self.seq_length
+
         if diagram_format == 'linear':
-            pagesize = draw_settings.get('pagesize', 'A4')
-            start = 0
-            end = self.seq_length
+            self.gd_diagram.del_track(self._coordinate_track) #Remove the coordinates track
             self.gd_diagram.draw(
                 format = diagram_format, 
                 circular = False, 
-                pagesize = pagesize, 
+                pagesize = pagesize,
+                fragments = (self.seq_length // self._coordinate_step) + 1,
                 start = start,
                 end = end
                 )
         elif diagram_format == 'circular':
-            pagesize = draw_settings.get('pagesize', 'A4')
+            # pagesize = draw_settings.get('pagesize', 'A4')
             circle_core = draw_settings.get('circle_core', 0.5)
             track_size = draw_settings.get('track_size', 0.5)
-            start = 0
-            end = self.seq_length
+            # start = 0
+            # end = self.seq_length
             self.gd_diagram.draw(
                 format = diagram_format, 
                 circular = True, 
