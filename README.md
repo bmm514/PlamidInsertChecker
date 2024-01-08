@@ -32,10 +32,11 @@ insert_seq = 'path/to/insert_fasta.fa'
 insert_linear = True
 remove_ambiguous_enzymes = True
 ```
-2. Run analysis on these to find restriction enzyme cut sites
-show the enzymes of interest
+2. Run analysis on these to find restriction enzyme cut sites and 
+show the enzymes of interest i.e. single cut enzymes
 ```
 rsinserter = RSInserter(plasmid_seq, plasmid_linear, insert_seq, insert_linear, remove_ambiguous_enzymes)
+
 rsinserter_XbaI_BamHI.shared_single_enzymes
 ```
 
@@ -50,8 +51,11 @@ insert_cut_enzymes = ('EnzymeA', 'EnzymeB')
 rsinserter.integrate_seq(plasmid_cut_enzymes, insert_cut_enzymes)
 ```
 5. Analyse the output restriction sites and save a table of the restriction sites present
+```
 integrated_table = '/path/to/restriction_enzymes.csv'
+
 rsinserter.integrated_rsfinder.save_enzyme_table(integrated_table, delimiter = ',')
+```
 
 6. Create plasmid map for the integrated sequence
 ```
