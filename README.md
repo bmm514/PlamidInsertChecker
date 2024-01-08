@@ -7,14 +7,12 @@ This is an installable python package that can be used to interrogate DNA sequen
 
 ## Installation
 
-Create a virtual environment using your favourite tool i.e.
-```virtualenv env_plasmidin```
+Create a virtual environment using your favourite tool, clone the repsotiory to obtain the data and install the package using pip
 
-Clone the PlasmidInsertChecker repository
-```git clone git@github.com:bmm514/PlamidInsertChecker.git```
-
-The install from PyPI using the command:
-```pip install plasmidin```
+```
+virtualenv env_plasmidin
+git clone git@github.com:bmm514/PlamidInsertChecker.git
+pip install plasmidin
 
 ## Basic useage
 1a. Import the python library
