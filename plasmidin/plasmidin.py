@@ -380,7 +380,7 @@ class RSFinder():
         for n_cuts in range(1, max_n_cut_sites + 1):
             enzyme_cuts = self.n_cut_sites(n_cuts)
             for enzyme_name, cut_sites in enzyme_cuts.items():
-                print(enzyme_name)
+                # print(enzyme_name)
                 info = {
                     'feature_name' : enzyme_name,
                     'sigil' : 'BOX',
@@ -506,8 +506,6 @@ class RSInserter():
         return (seq[:lhs_loc-1], seq[lhs_loc-1:rhs_loc-1], seq[rhs_loc-1:]), reverse_seq #because python
         
     def integrate_seq(self, backbone_enzymes, insert_enzymes, backbone_n_cut_sites = 1, insert_n_cut_sites = 1):
-        print(backbone_enzymes)
-        print(insert_enzymes)
         shared_enzymes, backbone_shared_cut_sites, insert_shared_cut_sites = self._shared_enzymes(backbone_n_cut_sites, insert_n_cut_sites)
 
         backbone_ambiguous, enzyme = ambiguous_cut(backbone_enzymes)
@@ -536,28 +534,18 @@ class RSInserter():
         except KeyError:
             raise KeyError('The enzymes(s) selected are not compatible, incorrect cut sites to know integration unambiguously. Review the enzymes and select again')
 
-        # Check for compatability of enzymes - TO DO!!!!!
-        # Cut the backbone seq
-        # (lhs_backbone_seq, _, rhs_backbone_seq), backbone_reverse_seq = self._cut_seq(backbone_seq, backbone_locs)
         (lhs_backbone_seq, _, rhs_backbone_seq), backbone_reverse_enzymes = self._cut_seq(backbone_seq, backbone_locs)
         if backbone_reverse_enzymes:
             backbone_enzymes = [i for i in reversed(backbone_enzymes)]
-        # Cut the input seq
-        # (_, middle_insert_seq, _), insert_reverse_seq = self._cut_seq(insert_seq, insert_locs)
+
         (_, middle_insert_seq, _), insert_reverse_enzymes = self._cut_seq(insert_seq, insert_locs)
         if insert_reverse_enzymes:
             insert_enzymes = [i for i in reversed(insert_enzymes)]
 
-        #Orient correctly, need to check
-        # if backbone_reverse_seq:
-        #     lhs_backbone_seq, rhs_backbone_seq = rhs_backbone_seq, lhs_backbone_seq
-        
-        # if insert_reverse_seq:
-        #     middle_insert_seq = middle_insert_seq[::-1] #reverse orientation
         compatible_ends, reverse_seq, ambiguous_insert = compatible_enzymes_matrix(backbone_enzymes, insert_enzymes)
-        print(f'Compatible ends: {compatible_ends}')
-        print(f'Reverse Seq: {reverse_seq}')
-        print(f'Ambiguous insert: {ambiguous_insert}')
+        # print(f'Compatible ends: {compatible_ends}')
+        # print(f'Reverse Seq: {reverse_seq}')
+        # print(f'Ambiguous insert: {ambiguous_insert}')
         if not compatible_ends:
             raise CompatibleEndsError
         
@@ -567,23 +555,10 @@ class RSInserter():
         integrated_seq = lhs_backbone_seq + middle_insert_seq + rhs_backbone_seq
         self._integrated_rsfinder = RSFinder(integrated_seq, self.backbone_rsfinder.linear, self.rb)
 
-        print(f'{ambiguous_insert} is ambiguous_insert')
+        # print(f'{ambiguous_insert} is ambiguous_insert')
         if ambiguous_insert:
             integrated_seq_b = lhs_backbone_seq + middle_insert_seq[::-1] + rhs_backbone_seq
             self._additional_integrated_rsfinder = RSFinder(integrated_seq_b, self.backbone_rsfinder.linear, self.rb)
-  
-    # Things to do:
-    # 1) Uncover compatible RS cut sites - Done!!
-    # 2) Insert insert_seq into backbone_seq according to (5' enzyme, 3' enzyme) - name self._integrated_rsfinder
-    #   a) Make sure to have insert oritentiation the correct way around i.e. if enzymes (A,B) for backbone, and (B,A) for insert then need to reverse the inesert
-    # 3) Produce report of integrated sequence() 
-
-#This should be part of a seperate class that takes in 2 sequences i.e. plasmid and insert
-def cut_and_insert(backbone_seq, backbone_rs, backbone_enzymes, insertion_seq, insertion_rs, insertion_enzymes):
-    backbone_lhs, _, backbone_rhs = cut_enzymes(backbone_seq, backbone_rs, backbone_enzymes)
-    _, insertion_middle, _ = cut_enzymes(insertion_seq, insertion_rs, insertion_enzymes)
-
-    return backbone_lhs + insertion_middle + backbone_rhs
 
 def cut_enzymes(seq: Seq, restriction_sites: dict, enzymes: tuple):
     """
