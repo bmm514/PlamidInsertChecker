@@ -22,6 +22,7 @@ From in python:
 ```
 from plasmidin.plasmidin import RSInserter
 from plasmidin.plasmid_diagrams import PlasmidDrawer
+```
 
 1. Input fasta file or bio python Seq() for plasmid and insert
 ```
