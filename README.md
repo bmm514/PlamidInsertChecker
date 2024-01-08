@@ -72,8 +72,8 @@ plasmid_drawer.draw_gd_diagram(integrated_figure, 'circular', {'pagesize' : 'A4'
 ```
 ## Working example
 
-See plasmidin_example.py for a working running code
- 
+See scripts/plasmidin_example.py for a working running code
+
 To run and produce output use:
 ```
 python3 scripts/plasmidin_examples.py
