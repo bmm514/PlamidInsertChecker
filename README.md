@@ -17,6 +17,9 @@ pip install plasmidin
 ```
 
 ## Basic useage
+
+For a complete working example see [Working example](#working-example)
+
 1. Import required plasmidin Classes
 ```
 from plasmidin.plasmidin import RSInserter
@@ -67,11 +70,12 @@ integrated_figure = '/path/to/integrated_restriction_map.pdf'
 plasmid_drawer = PlasmidDrawer(input_seq, 'IntegratedSeq', feature_info)
 plasmid_drawer.draw_gd_diagram(integrated_figure, 'circular', {'pagesize' : 'A4', 'circle_core' : 0.5, 'track_size' : 0.1})
 ```
-## Examples
+## Working example
 
-See plasmidin_example.py for code to run and produce output from PlasmidInsertChecker:
+See plasmidin_example.py for an example code  
+To run and produce output use:
 ```
 python3 scripts/plasmidin_examples.py
 ```
 
-This will use the example fasta files in ```data/``` directory and produce output into ```plasmidin_output```
+This will use the example fasta files in ```data/``` directory and produce output into ```plasmidin_output/```
