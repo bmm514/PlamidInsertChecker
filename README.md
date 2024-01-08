@@ -69,7 +69,9 @@ plasmid_drawer.draw_gd_diagram(integrated_figure, 'circular', {'pagesize' : 'A4'
 ```
 ## Examples
 
-See plasmidin_example.py for code to run and produce output:
-```python3 plasmidin_examples.py```
+See plasmidin_example.py for code to run and produce output from PlasmidInsertChecker:
+```
+python3 scripts/plasmidin_examples.py
+```
 
-This will use the example fasta files in the ```data/``` directory and produce output into ```plasmidin_output```
+This will use the example fasta files in ```data/``` directory and produce output into ```plasmidin_output```
