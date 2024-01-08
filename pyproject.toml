@@ -6,7 +6,7 @@ authors = [
 ]
 description = "A package to look at inserting DNA sequences into plasmids for cloning or PCR for SWBio DTP Data Science and Machine Learning Module"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
