@@ -2,8 +2,8 @@
 Code for SWbioDTP Data Science and Machine Learning module
 
 This is an installable python package that can be used to interrogate DNA sequences for restriction enzyme cutting sites. It can produce:  
-    i) a table of cut sites with useful information on the number of cut sites, the cut site locations, the enzyme cut overhang, and the commercial suppliers  
-    ii) a figure showing the cut locations on a plasmid or linear section of DNA
+    i. a table of cut sites with useful information on the number of cut sites, the cut site locations, the enzyme cut overhang, and the commercial suppliers  
+    ii. a figure showing the cut locations on a plasmid or linear section of DNA
 
 ## Installation
 
