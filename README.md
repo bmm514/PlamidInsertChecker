@@ -16,14 +16,13 @@ pip install plasmidin
 ```
 
 ## Basic useage
-1a. Import the python library
-From in python:
+1. Import required plasmidin Classes
 ```
 from plasmidin.plasmidin import RSInserter
 from plasmidin.plasmid_diagrams import PlasmidDrawer
 ```
 
-1. Input fasta file or bio python Seq() for plasmid and insert
+2. Input fasta file or bio python Seq() for plasmid and insert
 ```
 plasmid_seq = 'path/to/plasmid_fasta.fa'
 plasmid_linear = False
@@ -31,7 +30,8 @@ insert_seq = 'path/to/insert_fasta.fa'
 insert_linear = True
 remove_ambiguous_enzymes = True
 ```
-2. Run analysis on these to find restriction enzyme cut sites and 
+
+3. Run analysis on these to find restriction enzyme cut sites and 
 show the enzymes of interest i.e. single cut enzymes
 ```
 rsinserter = RSInserter(plasmid_seq, plasmid_linear, insert_seq, insert_linear, remove_ambiguous_enzymes)
@@ -39,24 +39,25 @@ rsinserter = RSInserter(plasmid_seq, plasmid_linear, insert_seq, insert_linear, 
 rsinserter_XbaI_BamHI.shared_single_enzymes
 ```
 
-3. Select from the list appropriate restriction enzymes to cut
+4. Select from the list appropriate restriction enzymes to cut
 ```
 plasmid_cut_enzymes = ('EnzymeA', 'EnzymeB')
 insert_cut_enzymes = ('EnzymeA', 'EnzymeB')
 ```
 
-4. Integrate insert sequence into plasmid sequence 
+5. Integrate insert sequence into plasmid sequence 
 ```
 rsinserter.integrate_seq(plasmid_cut_enzymes, insert_cut_enzymes)
 ```
-5. Analyse the output restriction sites and save a table of the restriction sites present
+
+6. Analyse the output restriction sites and save a table of the restriction sites present
 ```
 integrated_table = '/path/to/restriction_enzymes.csv'
 
 rsinserter.integrated_rsfinder.save_enzyme_table(integrated_table, delimiter = ',')
 ```
 
-6. Create plasmid map for the integrated sequence
+7. Create plasmid map for the integrated sequence
 ```
 input_seq = rsinserter.integrated_rsfinder.input_seq
 feature_info = rsinserter.integrated_rsfinder.feature_info
