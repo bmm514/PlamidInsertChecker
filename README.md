@@ -1,13 +1,20 @@
 # PlamidInsertChecker
 Code for SWbioDTP Data Science and Machine Learning module
 
-This is an installable python package that can be used to interrogate DNA sequences for restriction enzyme cutting sites. 
+This is an installable python package that can be used to interrogate DNA sequences for restriction enzyme cutting sites. It can produce: 
+    i) a table of cut sites with useful information on the number of cut sites, the cut site locations, the enzyme cut overhang, and the commercial suppliers
+    ii) a figure showing the cut locations on a plasmid or linear section of DNA
 
 ## Installation
 
+Create a virtual environment using your favourite tool i.e.
+```virtualenv env_plasmidin```
+```git clone ```
+
+The install from PyPI using the command:
 ```pip install plasmidin```
 
-## Useage
+## Simple useage
 1a. Import the python library
 ```from plasmidin import RSInserter```
 
@@ -38,4 +45,5 @@ rsinserter.integrate_seq(plasmid_cut_enzymes, insert_cut_enzymes)
 
 ## Examples
 
-See example.py for code to run
+See plasmidin_example.py for code to run and produce output:
+```python3 plasmidin_examples.py```
