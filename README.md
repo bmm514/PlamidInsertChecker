@@ -14,6 +14,7 @@ virtualenv env_plasmidin
 source env_plasmidin/bin/activate
 
 git clone git@github.com:bmm514/PlamidInsertChecker.git
+
 python3 -m pip install plasmidin
 ```
 
