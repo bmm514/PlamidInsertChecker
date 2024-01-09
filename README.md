@@ -22,7 +22,7 @@ Note this package requires python >= 3.8
 
 ## Basic useage
 
-For a complete working example see [Working examples](#working-examples)
+For a running working example see [Working examples](#working-examples)
 
 1. Import required plasmidin Classes
 ```
