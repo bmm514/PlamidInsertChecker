@@ -18,7 +18,7 @@ pip install plasmidin
 
 ## Basic useage
 
-For a complete working example see [Working example](#working-example)
+For a complete working example see [Working examples](#working-examples)
 
 1. Import required plasmidin Classes
 ```
@@ -70,13 +70,22 @@ integrated_figure = '/path/to/integrated_restriction_map.pdf'
 plasmid_drawer = PlasmidDrawer(input_seq, 'IntegratedSeq', feature_info)
 plasmid_drawer.draw_gd_diagram(integrated_figure, 'circular', {'pagesize' : 'A4', 'circle_core' : 0.5, 'track_size' : 0.1})
 ```
-## Working example
+## Working examples
 
-See ```scripts/plasmidin_example.py``` for a working running code
+See ```scripts/plasmidin_example.py``` for a working running code where both the insert and the plasmid have a two different enzyme cut sites to be inserted into the plasmid:
 
 To run and produce output use:
 ```
 python3 scripts/plasmidin_examples.py
 ```
 
-This will use the example fasta files in ```data/``` directory and produce output into ```plasmidin_output/```
+This will use the example fasta files in ```data/``` directory and produce output into ```plasmidin_example_output/```
+
+See ```scripts/single_enzyme_cut.py``` for a working example where the insert sequence has two identical cut sites (XbaI) to be inserted into a single cut site in the plasmid:
+
+To run and produce output use:
+```
+python3 scripts/single_enzyme_cut.py
+```
+
+This will use the example fasta files in ```data/``` directory and produce output into ```XbaI_single_cut_output/```
