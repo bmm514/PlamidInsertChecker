@@ -114,11 +114,8 @@ class PlasmidDrawer():
                 end = end
                 )
         elif diagram_format == 'circular':
-            # pagesize = draw_settings.get('pagesize', 'A4')
             circle_core = draw_settings.get('circle_core', 0.5)
             track_size = draw_settings.get('track_size', 0.5)
-            # start = 0
-            # end = self.seq_length
             self.gd_diagram.draw(
                 format = diagram_format, 
                 circular = True, 
@@ -155,16 +152,16 @@ def main():
             'label_angle' : 45
             }
         ),
-        # (
-        #     SeqFeature(SimpleLocation(20,27)), {
-        #     'feature_name' : 'feature4',
-        #     'sigil' : 'BOX',
-        #     'color' : colors.purple,
-        #     'label' : True,
-        #     'label_size' : 14,
-        #     'label_angle' : 0
-        #     }
-        # ),
+        (
+            SeqFeature(SimpleLocation(20,27)), {
+            'feature_name' : 'feature4',
+            'sigil' : 'BOX',
+            'color' : colors.purple,
+            'label' : True,
+            'label_size' : 14,
+            'label_angle' : 0
+            }
+        ),
         (
             SeqFeature(SimpleLocation(320, 325)), {
             'feature_name' : 'feature3',
