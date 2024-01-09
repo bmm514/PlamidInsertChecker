@@ -12,9 +12,12 @@ Create a virtual environment using your favourite tool, clone the repsotiory to 
 ```
 virtualenv env_plasmidin
 source env_plasmidin/bin/activate
+
 git clone git@github.com:bmm514/PlamidInsertChecker.git
-pip install plasmidin
+python3 -m pip install plasmidin
 ```
+
+Note this package requires python >= 3.8
 
 ## Basic useage
 
