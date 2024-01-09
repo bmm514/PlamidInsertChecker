@@ -9,7 +9,7 @@ def add_dirpath(outdir, filename):
     return path.join(outdir, filename)
 
 #1) Set up the folder if necessary:
-outdir = 'plasmidin_output'
+outdir = 'plasmidin_example_output'
 if not path.isdir(outdir):
     makedirs(outdir)
 
