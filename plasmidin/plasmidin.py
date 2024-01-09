@@ -8,9 +8,8 @@ from Bio import SeqIO
 import numpy
 from reportlab.lib import colors
 
-from .plasmidin_exceptions import AmbiguousCutError, CompatibleEndsError
+from plasmidin.plasmidin_exceptions import AmbiguousCutError, CompatibleEndsError
 
-#Should I put this in RSFinder?
 def enzyme_dict_to_string(n_cut_enzymes: dict):
     """Convert an analysis dictionary enzyme objects to the string name"""
     new_n_cut_enzymes = {}
@@ -20,9 +19,11 @@ def enzyme_dict_to_string(n_cut_enzymes: dict):
     return new_n_cut_enzymes
 
 def return_shared_dict(cut_enzymes: dict, shared_enzymes):
+    """Return a dictionary of {enzyme : [cut sites]} for every enzyme in shared_enzymes"""
     return {enzyme_name: cut_sites for enzyme_name, cut_sites in cut_enzymes.items() if enzyme_name in shared_enzymes}
 
 def compatible_enzymes(enzyme1, enzyme2):
+    """Return whether enzyme1 and enzyme2 have compatible ends"""
     return AllEnzymes.get(enzyme2) in AllEnzymes.get(enzyme1).compatible_end()
 
 def ambiguous_cut(enzymes):
@@ -76,9 +77,6 @@ class RSFinder():
     """
     A class to find restriction enzyme sites within an input sequence
     """
-    #Output can be used to compare common restriction sites
-    #To include:
-    #   - Make plasmid graphs section
     def __init__(self, input_seq, linear: bool, rb = RestrictionBatch(CommOnly), remove_ambiguous = True):
         """
         input_seq - a Bio.Seq.Seq object
@@ -126,14 +124,22 @@ class RSFinder():
 
     @property
     def input_seq(self):
+        """Returns the DNA sequence of RSFinder"""
         return self._input_seq
     
     @property
     def linear(self):
+        """
+        Returns a boolean to whether the input_seq should be treated as linear of circular.
+        True = linear, False = circular"""
         return self._linear
     
     @property
     def rb(self):
+        """
+        Returns the RestrictionBatch that is search for.
+        Can be updated with a new RestrictionBatch object
+        """
         return self._rb
     
     @rb.setter
@@ -145,10 +151,12 @@ class RSFinder():
     
     @property
     def remove_ambiguous(self):
+        """Returns a boolean to whether ambiguous cut sites have been removed from the RestrictionBatch"""
         return self._remove_ambiguous
     
     @property
     def analysis(self):
+        """Returns the analysis object that contains the restirction cut enzymes and sites for the DNA sequence"""
         return self._analysis
     
     @property
@@ -188,6 +196,7 @@ class RSFinder():
         return self._feature_info
 
     def _remove_ambiguous_enzymes(self):
+        """Removes the ambiguous cut enzymes from the RestritionBatch"""
         old_rb = self.rb
         new_rb = RestrictionBatch()
         for element in old_rb.elements():
@@ -210,8 +219,7 @@ class RSFinder():
             self.__init__(input_seq, linear, rb)
 
     def restriction_site_analysis(self):
-        """
-        Run the Bio.Restriction.Analysis on self.input_seq"""
+        """Run the Bio.Restriction.Analysis on self.input_seq"""
         rb = self.rb
         input_seq = self.input_seq
         linear = self.linear
@@ -247,6 +255,7 @@ class RSFinder():
             return []
     
     def _select_enzymes(self, n_cut_sites):
+        """Selects the enzymes with specified n_cut_sites from the DNA sequence"""
         if n_cut_sites is None:
             cut_enzymes = self.all_cut_enzymes
         elif n_cut_sites == 1: #saving computation
@@ -323,13 +332,16 @@ class RSFinder():
         return enzyme_df
     
     def _save_table(self, df, table_out, delimiter = '\t'):
+        """Saves a dataframe (df) to a file"""
         df.to_csv(table_out, sep = delimiter, index = False)
     
     def save_enzyme_table(self, table_out, delimiter = '\t'):
+        """Saves the restriction enzyme dataframe to a file"""
         df = self.enzyme_table
         self._save_table(df, table_out, delimiter)
     
     def save_supplier_table(self, table_out, delimiter = '\t'):
+        """Saves the supplier filtered table to a file"""
         df = self.supplier_table
         if df is not None:
             self._save_table(df, table_out, delimiter)
@@ -376,6 +388,9 @@ class RSFinder():
         return supplier_filtered
     
     def create_enzyme_records(self, max_n_cut_sites = 2):
+        """
+        Creates enzymes records for up to max_n_cut_sites to be used to plot as a GenomeDiagram
+        """
         feature_dict = {}
         for n_cuts in range(1, max_n_cut_sites + 1):
             enzyme_cuts = self.n_cut_sites(n_cuts)
@@ -389,15 +404,8 @@ class RSFinder():
                     'label_size' : 8,
                     'label_angle' : 45
                 }
-                #Need to work out a way to add length to seq_feature name if cut_site is already present
-                #This would remove the names ontop of each other
                 for cut_site in cut_sites:
                     feature_dict = search_update_feature_info(feature_dict, cut_site, info)
-                    # seq_feature = SeqFeature(SimpleLocation(cut_site, cut_site+1))
-                    # # feature_info.append((seq_feature, info))
-                    # feature_info = feature_dict.get(cut_site)
-                    # if feature_info is None:
-                    #     feature_dict[cut_site] = seq_feature, info
 
         self._feature_info = feature_dict
                 
