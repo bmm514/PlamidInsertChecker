@@ -7,18 +7,22 @@ This is an installable python package that can be used to interrogate DNA sequen
 
 ## Installation
 
-Create a virtual environment using your favourite tool, clone the repsotiory to obtain the data and install the package using pip
+Create a virtual environment using your favourite tool, clone the repsotiory to obtain the test data and install the package using pip
 
 ```
 virtualenv env_plasmidin
 source env_plasmidin/bin/activate
+
 git clone git@github.com:bmm514/PlamidInsertChecker.git
-pip install plasmidin
+
+python3 -m pip install plasmidin
 ```
+
+Note this package requires python >= 3.8
 
 ## Basic useage
 
-For a complete working example see [Working examples](#working-examples)
+For a running working example see [Working examples](#working-examples)
 
 1. Import required plasmidin Classes
 ```
@@ -74,7 +78,7 @@ plasmid_drawer.draw_gd_diagram(integrated_figure, 'circular', {'pagesize' : 'A4'
 
 See ```scripts/plasmidin_example.py``` for a working running code where both the insert and the plasmid have a two different enzyme cut sites to be inserted into the plasmid:
 
-To run and produce output use:
+To run (from PlasmidInsertChecker) and produce output use:
 ```
 python3 scripts/plasmidin_examples.py
 ```
@@ -83,7 +87,7 @@ This will use the example fasta files in ```data/``` directory and produce outpu
 
 See ```scripts/single_enzyme_cut.py``` for a working example where the insert sequence has two identical cut sites (XbaI) to be inserted into a single cut site in the plasmid:
 
-To run and produce output use:
+To run (from PlasmidInsertChecker) and produce output use:
 ```
 python3 scripts/single_enzyme_cut.py
 ```
