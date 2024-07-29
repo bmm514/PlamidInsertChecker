@@ -3,7 +3,7 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-setuptools.setup(name='stepRNA',
+setuptools.setup(name='PlasmidIn',
     version='1.0.0',
     author='Ben Murcott',
     author_email='bmm41@bath.ac.uk',
